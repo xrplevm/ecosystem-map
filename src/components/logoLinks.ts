@@ -10,7 +10,7 @@ const logoLinks: Record<string, string> = {
   'palmerafinance.png': 'https://app.palmeradao.xyz/create',
   'ibc.png': 'https://ibcprotocol.dev/',
   'strobe.png': 'https://strobe.finance/',
-  'elys.png': 'https://elys.network/',
+  'elys.png': 'https://app.elys.network/earn/vaults',
   'axelar.png': 'https://www.axelar.network/',
   'axelarscan.png': 'https://axelarscan.io/gmp/search',
   'squid.png': 'https://app.squidrouter.com/xrpl-xrpl-evm',
@@ -86,8 +86,8 @@ const logoLinks: Record<string, string> = {
   'itrocket.png': 'https://itrocket.net/services/testnet/xrplevm/',
   'dongqn.png': 'https://rpc.testnet.xrplevm.dongqn.com',
   'rpcdot.png': 'https://explorer.rpcdot.com/xrplevm-testnet',
-  'node9x.png': 'https://explorer.node9x.com/XRLP',
-  'luckystar.png': 'https://explorer.luckystar.asia/xrpl-Testnet',
+  'node9x.png': 'https://explorer.node9x.com/XRPLEVM',
+  'luckystar.png': 'https://explorer.luckystar.asia/XRPL-Mainnet',
   'xrplmetamasksnap.png': 'https://wallet.xrplevm.org',
   'zstake.png': 'https://explorer.zstake.xyz/exrp',
   // --- Missing links, fill as needed ---
@@ -128,10 +128,10 @@ const logoLinks: Record<string, string> = {
   // Explorers
   'blockscout.png': 'https://explorer.xrplevm.org/',
   'forbole_bigd 1.png': 'https://governance.xrplevm.org/',
-  'nodeshubexplorer.png': 'https://testnet.explorer.nodeshub.online/xrpl',
+  'nodeshubexplorer.png': 'https://explorer.nodeshub.online/xrpl',
   // Providers
   'xss.png': 'https://services.xsslabs.tech/xrpl-evm/installation',
-  'noders-png': 'https://noders.services/testnet-networks/xrp/',
+  'noders-png': 'https://noders.services/mainnet/xrp',
   
   // Validators
   'bkgeomatics.png': 'https://bkxrplevm.com/',
