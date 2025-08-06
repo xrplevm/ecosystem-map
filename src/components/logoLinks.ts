@@ -14,6 +14,7 @@ const logoLinks: Record<string, string> = {
   'axelar.png': 'https://www.axelar.network/',
   'axelarscan.png': 'https://axelarscan.io/gmp/search',
   'squid.png': 'https://app.squidrouter.com/xrpl-xrpl-evm',
+  'gaszip.png': 'https://www.gas.zip/',
   'skip.png': 'https://go.skip.build/?src_asset=uatom&src_chain=cosmoshub-4&dest_asset=axrp&dest_chain=xrplevm_1440000-1&amount_in=&amount_out=',
   'dcent.png': 'https://www.dcentwallet.com/',
   'reown.png': 'https://reown.com/',
@@ -28,7 +29,6 @@ const logoLinks: Record<string, string> = {
   'easya.png': 'https://easya.io/',
   'moai.png': 'https://xrplevm.moai-finance.xyz/swap',
   'vertex.png': 'https://app.vertexprotocol.com/markets',
-  'moremarkets.png': 'https://moremarkets.xyz',
   'palmeradao.png': 'https://app.palmeradao.xyz/create',
   'riddle.png': 'https://rddl.fun/',
   'walkit.png': 'https://www.walkitapp.com/',
@@ -76,7 +76,7 @@ const logoLinks: Record<string, string> = {
   'validator247.png': 'https://validator247.com/',
 
   // Oracles
-  'bandprotocol.png': 'https://www.bandprotocol.com/',
+  'band.png': 'https://www.bandprotocol.com/',
   'api3.png': 'https://api3.org/',
   // Misc
   'xrplcommons.png': 'https://xrplcommons.org',
@@ -123,6 +123,11 @@ const logoLinks: Record<string, string> = {
   'noble.png': 'https://www.noble.xyz/',
   'osmosis.png': 'https://www.osmosis.zone/',
   'stakz.png': 'https://stakz.io/',
+  'chaingun.png': 'https://chaingun.xyz/',
+  'falcon.png': 'https://falcon.finance/',
+  'midasrwa.png': 'https://midas.app/',
+  'ripplebids.png': 'https://ripplebids.com/',
+  'rubyscore.png': 'https://rubyscore.io/',
   
 
   // Explorers
@@ -148,6 +153,10 @@ const logoLinks: Record<string, string> = {
   'xtoadz.png': 'https://toadzpad.com/',
   // Wallets
   'leap.png': 'https://www.leapwallet.io/',
+  'bifrost.png': 'https://bifrostwallet.com',
+  'joey.png': 'https://joeywallet.xyz',
+  'xaman.png': 'https://xaman.app',
+  'girin.png': 'https://girin.app',
   // Add more as needed
 };
 
