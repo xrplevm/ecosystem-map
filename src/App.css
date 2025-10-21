@@ -137,27 +137,33 @@ body, #root {
   }
 }
 
-/* Oracles (next to Explorers) */
+/* Oracles (small card) */
 .cards-layout > .section-Oracles {
-  grid-column: 5 / span 2;
+  grid-column: 4 / span 2;
   grid-row: 2;
 }
 
-/* Indexers (next to Oracles) */
+/* Indexers (small card) */
 .cards-layout > .section-Indexers {
-  grid-column: 7 / span 2;
+  grid-column: 6 / span 2;
+  grid-row: 2;
+}
+
+/* DAOs (small card, same size as Oracles and Indexers) */
+.cards-layout > .section-DAOs {
+  grid-column: 8 / span 2;
   grid-row: 2;
 }
 
 /* Validators (top right, large) */
 .cards-layout > .section-Validators {
-  grid-column: 9 / span 5;
+  grid-column: 10 / span 4;
   grid-row: 2 / span 2;
 }
 
 /* Providers (below Explorers/Oracles/Indexers) */
 .cards-layout > .section-Providers {
-  grid-column: 1 / span 8;
+  grid-column: 1 / span 9;
   grid-row: 3;
 }
 
@@ -233,7 +239,10 @@ body, #root {
 }
 .section-card.section-Core,
 .section-card.section-Auditors,
-.section-card.section-Bridges {
+.section-card.section-Bridges,
+.section-card.section-Oracles,
+.section-card.section-Indexers,
+.section-card.section-DAOs {
   width: 220px;
 }
 .section-card.section-Wallets {

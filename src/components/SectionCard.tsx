@@ -18,6 +18,7 @@ const SECTION_IMAGE_MAP: Record<string, string> = {
   Core: "core",
   Auditors: "auditors",
   Wallets: "wallets",
+  DAOs: "daos",
 };
 
 const SectionCard: React.FC<SectionCardProps> = ({ title, logos }) => {
