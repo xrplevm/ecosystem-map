@@ -127,6 +127,15 @@ const logoLinks: Record<string, string> = {
   'rubyscore.png': 'https://rubyscore.io/',
   'liquify.png': 'https://liquify.fi/',
   'zkcodex.png': 'https://zkcodex.com/xrpl',
+  'conft.png': 'https://conft.app',
+  'copass.png': 'https://copass.app',
+  'copump.png': 'https://copump.xyz',
+  'geochain.png': 'https://geo-chain.xyz/',
+  'xrpawz.png': 'https://xrpawz.com',
+
+  // Bridges
+
+  'cobridge.png': 'https://cobridge.xyz',
   
 
   // Explorers

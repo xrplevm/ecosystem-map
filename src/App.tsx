@@ -40,18 +40,21 @@ const SECTIONS: {
       "squid.png",
       "skip.png",
       "gaszip.png",
+      "cobridge.png"
     ],
   },
   {
     title: "dApps",
     logos: [
       "moai.png",
-      "gas.zip.png",
+      "conft.png",
       "elys.png",
       "helix.png",
       "easya.png",
       "riddle.png",
       "xrise33.png",
+      "copass.png",
+      "copump.png",
       "hammyfinance.png",
       "surgedex.png",
       "mintiq-market.png",
@@ -81,7 +84,9 @@ const SECTIONS: {
       "ripplebids.png",
       "rubyscore.png",
       "liquify.png",
-      "zkcodex.png"
+      "zkcodex.png",
+      "geochain.png",
+      "xrpawz.png",
     ],
   },
   {
