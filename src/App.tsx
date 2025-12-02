@@ -87,6 +87,7 @@ const SECTIONS: {
       "liquify.png",
       "zkcodex.png",
       "geochain.png",
+      "redgervoir.png",
       "xrpawz.png",
       "explorer-dapp-ens.png",
       "explorer-dapp-reown-dapp.png",
@@ -126,6 +127,7 @@ const SECTIONS: {
       "nodestake.png",
       "rpcdot.png",
       "stavr.png",
+      "interscan.png",
     ],
   },
   {

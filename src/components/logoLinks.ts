@@ -103,7 +103,7 @@ const logoLinks: Record<string, string> = {
   'fomobiz.png': 'https://fomo.biz/',
   'gas.zip.png': 'https://www.gas.zip/',
   'injective.png': 'https://injective.com/',
-
+  'redgervoir.png': 'https://redgervoir.com/',
   'helix.png': 'https://helixapp.com/futures/xrp-usdt-perp',
   'mars.png': 'https://marsgate.xyz/',
   'nexusdao.png': 'https://nexus.dao.ai/',
@@ -146,6 +146,7 @@ const logoLinks: Record<string, string> = {
   'blockscout.png': 'https://explorer.xrplevm.org/',
   'forbole_bigd 1.png': 'https://governance.xrplevm.org/',
   'nodeshubexplorer.png': 'https://explorer.nodeshub.online/xrpl',
+  'interscan.png': 'https://xrplevm.interscan.pro/',
   // Providers
   'xss.png': 'https://services.xsslabs.tech/xrpl-evm/installation',
   'noders.png': 'https://noders.services/mainnet/xrp',
