@@ -100,6 +100,7 @@ const logoLinks: Record<string, string> = {
   'peersyst.png': 'https://peersyst.com/',
   'ripple.png': 'https://ripple.com/',
   // dApps
+  'axiom.png': 'https://www.axiomprotocol.io/',
   'fomobiz.png': 'https://fomo.biz/',
   'gas.zip.png': 'https://www.gas.zip/',
   'injective.png': 'https://injective.com/',
