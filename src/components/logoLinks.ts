@@ -101,6 +101,7 @@ const logoLinks: Record<string, string> = {
   'ripple.png': 'https://ripple.com/',
   // dApps
   'axiom.png': 'https://www.axiomprotocol.io/',
+  'blumefi.png': 'https://blumefi.com/',
   'fomobiz.png': 'https://fomo.biz/',
   'gas.zip.png': 'https://www.gas.zip/',
   'injective.png': 'https://injective.com/',

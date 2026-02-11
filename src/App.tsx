@@ -48,6 +48,7 @@ const SECTIONS: {
     logos: [
       "moai.png",
       "axiom.png",
+      "blumefi.png",
       "conft.png",
       "elys.png",
       "helix.png",
