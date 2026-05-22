@@ -13,6 +13,7 @@
 
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -21,3 +22,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.vercel
+
+# alternative package managers (npm is canonical)
+pnpm-lock.yaml
+
+# local dev tooling (Claude Code + peersyst-harness)
+.claude/
+.agents/
+skills-lock.json

@@ -1,0 +1,1028 @@
+[
+  {
+    "id": "squid",
+    "external": true,
+    "title": "Squid",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-squid.png",
+    "shortDescription": "Squid and Axelar power cross-chain connection between XRPL, XRPL EVM, and 80+ chains. Squid's API, SDK, and Widget offer developers the integration tools to enable seamless connectivity across ecosystems.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Squid",
+    "url": "https://app.squidrouter.com/xrpl-xrpl-evm",
+    "description": "Squid and Axelar power cross-chain connection between XRPL, XRPL EVM, and 80+ chains. Squid's API, SDK, and Widget offer developers the integration tools to enable seamless connectivity across ecosystems.",
+    "site": "https://app.squidrouter.com/xrpl-xrpl-evm",
+    "github": "https://github.com/0xsquid/"
+  },
+  {
+    "id": "skip",
+    "external": true,
+    "title": "Skip Go",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-skip.png",
+    "shortDescription": "Seamless cross-chain bridging powered by IBC and Axelar.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Cosmos",
+    "url": "https://go.skip.build/?src_asset=uatom&src_chain=cosmoshub-4&dest_asset=axrp&dest_chain=xrplevm_1440000-1&amount_in=&amount_out=",
+    "description": "Skip Go enables seamless cross-chain transfers across multiple blockchains, leveraging IBC and Axelar for secure and efficient interoperability. Built by the Cosmos ecosystem.",
+    "site": "https://go.skip.build/",
+    "github": "https://github.com/skip-mev/skip-go-app"
+  },
+  {
+    "id": "gas-zip",
+    "external": true,
+    "title": "Gas.zip",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-gas-zip.png",
+    "shortDescription": "Instant one-stop refuel bridge for 350+ chains.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Gas.zip",
+    "url": "https://www.gas.zip/",
+    "description": "Instant one-stop refuel bridge for 350+ chains.",
+    "site": "https://www.gas.zip/"
+  },
+  {
+    "id": "strobe",
+    "external": true,
+    "title": "Strobe",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-strobe.jpg",
+    "shortDescription": "Unified Liquidity Layer on XRPL",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Strobe Finance",
+    "url": "https://app.strobe.finance/market",
+    "description": "Unlock new yield opportunities for XRP holders by tapping into diverse reward sources. Leverage billions in market cap to make XRP more useful than ever.",
+    "site": "https://strobe.finance/",
+    "github": "https://github.com/strobe-protocol/"
+  },
+  {
+    "id": "axiom",
+    "external": true,
+    "title": "Axiom Protocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axiom.png",
+    "shortDescription": "A decentralized prediction market, built for believers. Enjoy fast-paced and unique markets. Use your knowledge to make money. Powered by $XRP",
+    "categories": [
+      "Prediction Market"
+    ],
+    "author": "Gen3Labs",
+    "url": "https://www.axiomprotocol.io/",
+    "description": "A decentralized prediction market, built for believers. Enjoy fast-paced and unique markets. Use your knowledge to make money. Powered by $XRP",
+    "site": "https://www.axiomprotocol.io/"
+  },
+  {
+    "id": "midas",
+    "external": true,
+    "title": "MidasRWA",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-midas.jpg",
+    "shortDescription": "Institutional-grade Assets built for the Open Web. ",
+    "categories": [
+      "DeFi",
+      "RWA"
+    ],
+    "author": "MidasRWA",
+    "url": "https://midas.app/mxrp",
+    "description": "At Midas, we are building financial infrastructure for the internet era. Our mission is to make institutional-grade financial products available through blockchain-based architecture - while maintaining the rigour, compliance, and controls expected in traditional finance. We focus on creating secure, transparent, and efficient structures that allow investors to access the performance of select reference strategies through tokenized formats. All Midas products are issued with careful consideration of applicable regulatory frameworks in Europe and globally. We are committed to building responsibly - ensuring clarity of investor rights, compliance with relevant laws, and the use of best-in-class service providers for custody, structuring, and reporting.",
+    "site": "https://midas.app/mxrp",
+    "github": ""
+  },
+  {
+    "id": "falcon",
+    "external": true,
+    "title": "falcon Finance",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-falcon.png",
+    "shortDescription": "The first universal collateralization infrastructure powering onchain liquidity and yield. $1B+ USDf in circulation.",
+    "categories": [
+      "RWA"
+    ],
+    "author": "Falcon Finance",
+    "url": "https://falcon.finance/",
+    "description": "The first universal collateralization infrastructure powering onchain liquidity and yield. $1B+ USDf in circulation.",
+    "site": "https://falcon.finance/"
+  },
+  {
+    "id": "cobridge",
+    "external": true,
+    "title": "COBRIDGE",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cobridge.png",
+    "shortDescription": "coBridge is a fast and secure EVM cross-chain bridge enabling seamless asset and data transfers between Ethereum-compatible blockchains.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "CoLabs",
+    "url": "https://cobridge.xyz",
+    "description": "coBridge is a fast and secure EVM cross-chain bridge enabling seamless asset and data transfers between Ethereum-compatible blockchains.",
+    "site": "https://cobridge.xyz"
+  },
+  {
+    "id": "conft",
+    "external": true,
+    "title": "conft",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-conft.png",
+    "shortDescription": "conft - a Multi-Chain Web3 Utility Hub offering comprehensive services such as Web3 Name Service, NFT Aggregator, and Launchpad.",
+    "categories": [
+      "NFT"
+    ],
+    "author": "CoLabs",
+    "url": "https://conft.app/",
+    "description": "conft is a Multi-Chain Web3 Utility Hub offering comprehensive services such as Web3 Name Service, NFT Aggregator, and Launchpad.",
+    "site": "https://conft.app/"
+  },
+  {
+    "id": "copass",
+    "external": true,
+    "title": "Co Pass",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-copass.png",
+    "shortDescription": "Proof of Human , sybil-resistant identity verification protocol.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "CoLabs",
+    "url": "https://copass.app",
+    "description": "Proof of Human , sybil-resistant identity verification protocol.",
+    "site": "https://copass.app"
+  },
+  {
+    "id": "copump",
+    "external": true,
+    "title": "COPUMP",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-copump.png",
+    "shortDescription": "coPump - A launchpad for meme tokens, enabling rapid and efficient token launches, driving initial liquidity and user excitement.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "CoLabs",
+    "url": "https://copump.xyz",
+    "description": "coPump - A launchpad for meme tokens, enabling rapid and efficient token launches, driving initial liquidity and user excitement.",
+    "site": "https://copump.xyz"
+  },
+  {
+    "id": "elys-network",
+    "external": true,
+    "title": "Elys Network",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-elys-network.png",
+    "shortDescription": "One Investing App. Every market. Built for everyone",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Elys Network",
+    "url": "https://app.elys.network/",
+    "description": "Elys Network is redefining online investing, bridging TradFi and DeFi into one platform. Built for institutions, designed for retail, Elys lets you invest across crypto, real estate, commodities, and stocks—all in one unified app. Whether you're DeFi-native or TradFi-curious, Elys gives you full asset ownership, 24/7 access, and multi-yield opportunities. One platform. Every market. Built for everyone.",
+    "site": "https://elys.network/",
+    "github": "https://github.com/elys-network"
+  },
+  {
+    "id": "yellow",
+    "external": true,
+    "title": "Yellow Network",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-yellow.png",
+    "shortDescription": "Web3 #blockchain products & services ecosystem | Building next-gen #DeFi experience for exchanges, brokers & traders 🚀",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Layer3 Fintech Ltd.",
+    "url": "https://www.yellow.org/",
+    "description": "Leverage our trustless infrastructure to create powerful businesses that are governed by logic - giving you the freedom to focus on your vision, not the operations.",
+    "site": "https://www.yellow.org/",
+    "github": "https://github.com/layer-3"
+  },
+  {
+    "id": "helix",
+    "external": true,
+    "title": "Helix App",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-helix.png",
+    "shortDescription": "The premier decentralized exchange on Injective. Trade on-chain perps, spot, and tradfi assets 24/7 with leverage.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Helix App",
+    "url": "https://helixapp.com/futures/xrp-usdt-perp",
+    "description": "The premier decentralized exchange on Injective. Trade on-chain perps, spot, and tradfi assets 24/7 with leverage.",
+    "site": "https://helixapp.com/",
+    "github": ""
+  },
+  {
+    "id": "moai-finance",
+    "external": true,
+    "title": "Moai Finance",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-moai.png",
+    "shortDescription": "Moai Finance is on a mission to pioneer decentralized real-fi by leveraging public blockchain protocols as its foundational infrastructure.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Moai Finance",
+    "url": "https://xrplevm.moai-finance.xyz/swap",
+    "description": "Moai Finance is on a mission to pioneer decentralized real-fi by leveraging public blockchain protocols as its foundational infrastructure. Our initial focus is on building core DeFi protocols across multiple chains within the XRP ecosystem, including the XRP Ledger, XRPL EVM Sidechain, and Futureverse. As the DeFi landscape evolves, we plan to introduce \"Moai Link,\" a liquidity aggregation layer that spans the entire XRP ecosystem. By utilizing these features as building blocks, Moai Finance aims to facilitate real-world financial applications of DeFi protocols.",
+    "site": "https://xrplevm.moai-finance.xyz/swap"
+  },
+  {
+    "id": "easya",
+    "external": true,
+    "title": "EasyA",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-easya.png",
+    "shortDescription": "EasyA is the world's biggest Web3 education app. With its XRP Ledger EVM Sidechain crash course, you can learn everything you need to know to start building on the XRP Ledger EVM Sidechain.",
+    "categories": [
+      "Learning"
+    ],
+    "author": "EasyA",
+    "url": "https://easya.io/",
+    "description": "EasyA is the world's biggest Web3 education app. With its XRP Ledger EVM Sidechain crash course, you can learn everything you need to know to start building on the XRP Ledger EVM Sidechain. So what are you waiting for? Join the community today!",
+    "site": "https://easya.io"
+  },
+  {
+    "id": "palmera-dao",
+    "external": true,
+    "title": "Palmera",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-palmera-dao.jpg",
+    "shortDescription": "Smart Treasury Management: Multiple Safes, One Dashboard",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Palmera DAO",
+    "url": "https://safe.palmeradao.xyz/welcome",
+    "description": "Powered by Safe, Palmera streamlines your Safes operations and treasury management across multiple chains, all from a single dashboard",
+    "site": "https://safe.palmeradao.xyz/welcome"
+  },
+  {
+    "id": "blumefi",
+    "external": true,
+    "title": "Blume Finance",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-blumefi.png",
+    "shortDescription": "Agent-native DeFi on XRPL EVM. Perpetuals. Swaps. Fair launches. Governance. Built for agents and humans alike. Trade. Grow. Blume.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Blume Finance",
+    "url": "https://blumefi.com/",
+    "description": "Agent-native DeFi on XRPL EVM. Perpetuals. Swaps. Fair launches. Governance. Built for agents and humans alike. Trade. Grow. Blume.",
+    "site": "https://blumefi.com/"
+  },
+  {
+    "id": "riddle",
+    "external": true,
+    "title": "Riddle",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-riddle.png",
+    "shortDescription": "The first memepad on XRPL EVM",
+    "categories": [
+      "Launchpad"
+    ],
+    "author": "rddldotfun",
+    "url": "https://rddl.fun/",
+    "description": "Riddle is the first dedicated meme token launchpad built specifically for the XRPL EVM ecosystem.",
+    "site": "https://rddl.fun/"
+  },
+  {
+    "id": "xrise33",
+    "external": true,
+    "title": "XRiSE33",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xrise33.png",
+    "shortDescription": "XRiSE33 is a cooperative ecosystem on XRPL EVM, aligning incentives using vote-escrow tokens to reward long-term commitment and collective growth.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "XRiSE33",
+    "url": "https://xrise33.com",
+    "description": "Built on XRPL EVM, XRiSE33 empowers communities through the (3,3) cooperative game theory model. By leveraging a vote-escrow (ve) token system, it rewards users for locking tokens with boosted yields and voting power. With rapid transactions, low fees, and decentralized governance, XRiSE33 fosters shared success and scalable DeFi innovation.",
+    "site": "https://xrise33.com"
+  },
+  {
+    "id": "hammy-swap",
+    "external": true,
+    "title": "Hammy Swap",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-hammy-swap.jpg",
+    "shortDescription": "Hammy Swap is the pioneer DEX on the XRPL EVM Sidechain. It offers seamless swap and yield-farming services, combining security, cost-effectiveness and a user-friendly experience.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Hammy Finance",
+    "url": "https://hammy.finance/",
+    "description": "Hammy Swap is the pioneer DEX on the XRPL EVM Sidechain. It offers seamless swap and yield-farming services, combining security, cost-effectiveness and a user-friendly experience.",
+    "site": "https://hammy.finance/"
+  },
+  {
+    "id": "anodex",
+    "external": true,
+    "title": "ANODEX",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-anodex.png",
+    "shortDescription": "A one-stop shop for XRPL's DEX and EVM swaps. On/offramp, trade, provide liquidity, and manage your XRPL account - all in one place.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Anodos Labs Inc",
+    "url": "https://dex.anodos.finance/",
+    "description": "A one-stop shop for XRPL's DEX and EVM swaps. On/offramp, trade, provide liquidity, and manage your XRPL account - all in one place.",
+    "site": "https://dex.anodos.finance/"
+  },
+  {
+    "id": "onchain-gm",
+    "external": true,
+    "title": "OnChainGm",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-onchain-gm.png",
+    "shortDescription": "Your Daily Web3 Ritual",
+    "categories": [
+      "Tools"
+    ],
+    "author": "RubyScore",
+    "url": "https://rubyscore.io/dashboard?net=xrpl",
+    "description": "ONCHAINGM is the leading multi-chain platform revolutionizing blockchain interactions through innovative daily engagement protocols. Experience seamless cross-chain connectivity with enterprise-grade reliability.",
+    "site": "https://rubyscore.io/dashboard?net=xrpl"
+  },
+  {
+    "id": "rubyscore",
+    "external": true,
+    "title": "RubyScore",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-rubyscore.jpg",
+    "shortDescription": "Analytics platform for blockchain and wallet, which combines on-chain data with a massive and constantly growing database containing millions of wallet labels.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "RubyScore",
+    "url": "https://rubyscore.io/dashboard?net=xrpl",
+    "description": "Analytics platform for blockchain and wallet, which combines on-chain data with a massive and constantly growing database containing millions of wallet labels.",
+    "site": "https://rubyscore.io/dashboard?net=xrpl"
+  },
+  {
+    "id": "nexus-ai-dao",
+    "external": true,
+    "title": "Nexus (by the AI DAO)e",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nexus-ai-dao.jpg",
+    "shortDescription": "**Nexus** is a next-generation DAO management platform that enables communities to launch, manage, and govern DAOs and their tokens on the XRPL EVM Sidechain.",
+    "categories": [
+      "DAO",
+      "AI"
+    ],
+    "author": "Nexus",
+    "url": "https://nexus.dao.ai/",
+    "description": "**Nexus** is a next-generation DAO management platform that enables communities to launch, manage, and govern DAOs and their tokens on the XRPL EVM Sidechain. Developed and maintained by the [**AI DAO**](https://dao.ai), Nexus will be made available as a public goods commons to the XRPL community upon mainnet launch. DAOs created through the Nexus platform can also leverage autonomous agents (developed independently of the DAO by certain founding members as a proprietary service) to automate routine tasks, detect voting irregularities, and assist in governance decisions. Nexus is part of a broader framework of platforms incubated by the AI DAO, designed to launch **Autonomous AI Agents** capable of holding wallets, transacting across all blockchains supported by **Axelar**, and being governed on-chain by stakeholders through DAOs.",
+    "site": "https://nexus.dao.ai/"
+  },
+  {
+    "id": "xao-dao",
+    "external": true,
+    "title": "XAO.DAO",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xao-dao.jpg",
+    "shortDescription": "XAO.DAO, the first Decentralized Autonomous Organization to represent the community of the XRP Ledger.",
+    "categories": [
+      "DAO"
+    ],
+    "author": "XAO DAO",
+    "url": "https://www.xaodao.io",
+    "description": "XAO.DAO, the first Decentralized Autonomous Organization to represent the community of the XRP Ledger.",
+    "site": "https://www.xaodao.io"
+  },
+  {
+    "id": "zns-bio",
+    "external": true,
+    "title": "ZNS Bio",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-znsbio.png",
+    "shortDescription": "Claim your web3 page, decentralize your identity.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "ZNS Connect",
+    "url": "https://zns.bio/",
+    "description": "#ZNSConnect decentralized ID platform powered by decentralized addresses.",
+    "site": "https://zns.bio/"
+  },
+  {
+    "id": "safe-global",
+    "external": true,
+    "title": "Safe Global Multisig",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-safe-global.jpg",
+    "shortDescription": "Safe platform offers secure multi-signature wallets.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://safe.xrplevm.org",
+    "description": "Safe platform offers secure multi-signature wallets, requiring multiple approvals for transactions, enhancing security and mitigating risks in cryptocurrency transactions.",
+    "site": "https://safe.xrplevm.org",
+    "github": "https://github.com/Safe-Global"
+  },
+  {
+    "id": "nfts-2me",
+    "external": true,
+    "title": "NFTs2Me",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nfts-2me.png",
+    "shortDescription": "Make an NFT Collection With ZERO Coding Skills",
+    "categories": [
+      "NFT"
+    ],
+    "author": "NFTs2Me",
+    "url": "https://nfts2me.com/",
+    "description": "Our goal is to make the process of creating, deploying, and minting your NFT collections as simple and straightforward as possible, while providing advanced and unique functionalities available for everyone.",
+    "site": "https://nfts2me.com/"
+  },
+  {
+    "id": "mintiq-market",
+    "external": true,
+    "title": "Mintiq Market",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-mintiq-market.png",
+    "shortDescription": "The first NFT Marketplace on XRPL EVM Sidechain",
+    "categories": [
+      "NFT"
+    ],
+    "author": "Mintiq Market",
+    "url": "https://mintiq.market/",
+    "description": "The first NFT Marketplace on XRPL EVM Sidechain",
+    "site": "https://mintiq.market/"
+  },
+  {
+    "id": "surgedex",
+    "external": true,
+    "title": "SurgeDEX",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-fomo-surgedex.png",
+    "shortDescription": "Surge is a decentralized exchange (DEX) built natively for XRPL-EVM, enabling permissionless token swaps and capital-efficient liquidity provisioning.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "SurgeDEX",
+    "url": "https://surge.syvlabs.io/",
+    "description": "Surge is a decentralized exchange (DEX) built natively for XRPL-EVM, enabling permissionless token swaps and capital-efficient liquidity provisioning. With Uniswap V3-style concentrated liquidity, multiple fee tiers, and a seamless UI, Surge is designed to unlock true DeFi functionality for the XRPL ecosystem.",
+    "site": "https://surge.syvlabs.io/"
+  },
+  {
+    "id": "humanode-biomapper",
+    "external": true,
+    "title": "Humanode Biomapper",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-humanodebiomapper.png",
+    "shortDescription": "On-chain private facial recognition tool.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Humanode",
+    "url": "https://mainnet.biomapper.hmnd.app/dashboard",
+    "description": "Biomapper is an on-chain private facial recognition tool that ensures that a person verified only one Ethereum-compatible address in the Dapp. It was created as a response to Sybil attacks - attempts to trick the rating systems in web3 using multiple accounts and automated bots.Biomapper is an on-chain private facial recognition tool that ensures that a person verified only one Ethereum-compatible address in the Dapp. It was created as a response to Sybil attacks - attempts to trick the rating systems in web3 using multiple accounts and automated bots.",
+    "site": "https://mainnet.biomapper.hmnd.app/dashboard"
+  },
+  {
+    "id": "Nexus",
+    "external": true,
+    "title": "The Nexus Portal",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nexus.png",
+    "shortDescription": "A multi-dimensional DeFi ecosystem, with a unique holographic UI, multi-reward superfarm and multi-staking system.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "The Nexus Portal",
+    "url": "https://www.thenexusportal.io/",
+    "description": "A multi-dimensional DeFi ecosystem, with a unique holographic UI, multi-reward superfarm and multi-staking system.",
+    "site": "https://www.thenexusportal.io/"
+  },
+  {
+    "id": "liquify",
+    "external": true,
+    "title": "Liquify",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-liquify.jpg",
+    "shortDescription": "P2P Lending & borrowing",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Liquify",
+    "url": "https://liquify.fi/",
+    "description": "Tokenize everything 🌊 Check out the smart, p2p on-chain Lending & Borrowing made for everyone 💰",
+    "site": "https://liquify.fi/"
+  },
+  {
+    "id": "ripplebids",
+    "external": true,
+    "title": "RippleBids",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ripplebids.jpg",
+    "shortDescription": "The next generation marketplace powered by XRPB tokens, enabling seamless trading across multiple blockchain networks",
+    "categories": [
+      "Marketplace"
+    ],
+    "author": "RippleBids",
+    "url": "https://ripplebids.com/",
+    "description": "The next generation marketplace powered by XRPB tokens, enabling seamless trading across multiple blockchain networks",
+    "site": "https://ripplebids.com/"
+  },
+  {
+    "id": "xrpawz",
+    "external": true,
+    "title": "XRPawz",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xrpawz.png",
+    "shortDescription": "XRPawz is a community-driven meme token that automatically rewards holders with XRP. Every buy and sell routes a small fee into a smart contract that purchases XRP on the open market and redistributes it to $PAWZ holders—no staking, no claiming, just hold and let the pup fetch.",
+    "categories": [
+      "MEME"
+    ],
+    "author": "XRPawz",
+    "url": "https://www.xrpawz.com",
+    "description": "XRPawz is a community-driven meme token that automatically rewards holders with XRP. Every buy and sell routes a small fee into a smart contract that purchases XRP on the open market and redistributes it to $PAWZ holders—no staking, no claiming, just hold and let the pup fetch.",
+    "site": "https://www.xrpawz.com"
+  },
+  {
+    "id": "zkcodex",
+    "external": true,
+    "title": "ZKCODEX",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-zkcodex.jpg",
+    "shortDescription": "Track wallets across  105+ networks, engage on-chain across 125+ networks, and discover airdrops—all in one place!",
+    "categories": [
+      "Tools"
+    ],
+    "author": "XKCODEX",
+    "url": "https://zkcodex.com/xrpl",
+    "description": "Track wallets across  105+ networks, engage on-chain across 125+ networks, and discover airdrops—all in one place!",
+    "site": "https://zkcodex.com/xrpl"
+  },
+  {
+    "id": "geochain",
+    "external": true,
+    "title": "GeoChain",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-geochain.png",
+    "shortDescription": "GeoChain is an innovative, onchain marketplace that brings transparency, security, and instant settlement to the geospatial data economy. By leveraging the XRPL EVM Sidechain, GeoChain combines EVM compatibility for smart contracts with the speed, low fees, and reliability of the XRP Ledger.",
+    "categories": [
+      "Marketplace"
+    ],
+    "author": "GeoChain",
+    "url": "https://geo-chain.xyz/",
+    "description": "GeoChain is an innovative, onchain marketplace that brings transparency, security, and instant settlement to the geospatial data economy. By leveraging the XRPL EVM Sidechain, GeoChain combines EVM compatibility for smart contracts with the speed, low fees, and reliability of the XRP Ledger.",
+    "site": "https://geo-chain.xyz/"
+  },
+  {
+    "id": "redgervoir",
+    "external": true,
+    "title": "Redgervoir",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-redgervoir.png",
+    "shortDescription": "A reserve protocol that accumulates XRP, publishes verifiable on-ledger coverage data, and deepens payment-grade liquidity.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Redgervoir",
+    "url": "https://www.redgervoir.app/",
+    "description": "A reserve protocol that accumulates XRP, publishes verifiable on-ledger coverage data, and deepens payment-grade liquidity.",
+    "site": "https://www.redgervoir.app/"
+  },
+  {
+    "id": "ens",
+    "external": true,
+    "title": "ens.xrplevm.org",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ens.png",
+    "shortDescription": "Send XRP on XRPL EVM Mainnet. Supports .xrpl domain resolution via ZNS.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://ens.xrplevm.org/",
+    "description": "Send XRP on XRPL EVM Mainnet. Supports .xrpl domain resolution via ZNS.",
+    "site": "https://ens.xrplevm.org/",
+    "github": "https://github.com/xrplevm/zns-resolve-xrplevm"
+  },
+  {
+    "id": "reown-dapp-template",
+    "external": true,
+    "title": "reown dApp with Social login",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-reown-dapp.png",
+    "shortDescription": "A simple decentralized application (dApp) demonstrating social login integration using Reown AppKit (formerly WalletConnect) for XRPL EVM Testnet with transfer functionality.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://reown-xrpl-dapp.vercel.app/",
+    "description": "A simple decentralized application (dApp) demonstrating social login integration using Reown AppKit (formerly WalletConnect) for XRPL EVM Testnet with transfer functionality.",
+    "site": "https://reown-xrpl-dapp.vercel.app/",
+    "github": "https://github.com/vriveraPeersyst/reown-xrplevm-dapp"
+  },
+  {
+    "id": "metamask",
+    "external": true,
+    "title": "MetaMask",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-metamask.jpg",
+    "shortDescription": "MetaMask is the leading self-custody crypto wallet trusted by millions.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Consensys",
+    "url": "https://metamask.io/",
+    "description": "MetaMask is a powerful crypto wallet and Web3 gateway that lets you securely manage digital assets and connect to thousands of decentralized apps—right from your browser or mobile device.",
+    "site": "https://metamask.io/",
+    "github": "https://github.com/MetaMask"
+  },
+  {
+    "id": "keplr",
+    "external": true,
+    "title": "Keplr",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-keplr.png",
+    "shortDescription": "Introducing Keplr, the fast,simple, secure wallet that plugs you into any blockchains and apps wherever you go. Pioneering its ways in the multichain future from day one.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Keplr",
+    "url": "https://www.keplr.app/",
+    "description": "Introducing Keplr, the fast,simple, secure wallet that plugs you into any blockchains and apps wherever you go. Pioneering its ways in the multichain future from day one.",
+    "site": "https://www.keplr.app/",
+    "github": "https://github.com/chainapsis/keplr-wallet"
+  },
+  {
+    "id": "cosmostation",
+    "external": true,
+    "title": "Cosmostation Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cosmostation.png",
+    "shortDescription": "Non-custodial multi-chain cryptocurrency browser extension wallet.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://www.cosmostation.io/products/cosmostation_extension",
+    "description": "Non-custodial multi-chain cryptocurrency browser extension wallet.",
+    "site": "https://www.cosmostation.io"
+  },
+  {
+    "id": "leap",
+    "external": true,
+    "title": "Leap Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-leap.png",
+    "shortDescription": "🐸 the interchain & modular wallet that loves you ✨ swaps, staking, airdrops, DeFi & more 👩‍🚀 trusted by 800k+ users",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "LeapWallet",
+    "url": "https://www.leapwallet.io/",
+    "description": "🐸 the interchain & modular wallet that loves you ✨ swaps, staking, airdrops, DeFi & more 👩‍🚀 trusted by 800k+ users",
+    "site": "https://www.leapwallet.io/"
+  },
+  {
+    "id": "dcent",
+    "external": true,
+    "title": "D'CENT Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-dcent.png",
+    "shortDescription": "D’CENT Hardware Wallet secures your crypto, rewards your trust — and gives more to those who hold the key.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "D'CENT Wallet",
+    "url": "https://www.dcentwallet.com/",
+    "description": "D’CENT Hardware Wallet secures your crypto, rewards your trust — and gives more to those who hold the key.",
+    "site": "https://www.dcentwallet.com/"
+  },
+  {
+    "id": "xaman",
+    "external": true,
+    "title": "Xaman Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xaman.jpg",
+    "shortDescription": "The leading self-custodial wallet for the XRPL. Built by XRPLLabs",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "XRPLLabs",
+    "url": "https://xaman.app/",
+    "description": "The leading self-custodial wallet for the XRPL. Built by XRPLLabs",
+    "site": "https://xaman.app/"
+  },
+  {
+    "id": "metamask-snap",
+    "external": true,
+    "title": "XRPL MetaMask Snap",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-metamask-snap.png",
+    "shortDescription": "The MetaMask Snap allows the XRPL, a non-EVM blockchain, to integrate with the MetaMask browser wallet at no cost.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Peersyst",
+    "url": "https://wallet.xrplevm.org",
+    "description": "Unlock XRPL's potential with your MetaMask. If you have a MetaMask wallet now you have an XRPL one too. With our XRP Ledger Snap with MetaMask snap support, you will have most of the features of XRPL right in your MetaMask wallet.",
+    "site": "https://snap.xrplevm.org",
+    "github": "https://github.com/Peersyst/xrpl-snap"
+  },
+  {
+    "id": "crossmark",
+    "external": true,
+    "title": "Crossmark",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-crossmark.jpg",
+    "shortDescription": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Crossmark",
+    "url": "https://crossmark.io",
+    "description": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
+    "site": "https://crossmark.io",
+    "github": "https://github.com/crossmarkio"
+  },
+  {
+    "id": "joey",
+    "external": true,
+    "title": "Joey Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-joey.jpg",
+    "shortDescription": "Comfiest Wallet on the XRPL",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Joey Wallet",
+    "url": "https://joeywallet.xyz/",
+    "description": "Your Trusted Crypto Pouch. Hold tokens and NFTs, swap, explore, and stay in control.",
+    "site": "https://joeywallet.xyz/"
+  },
+  {
+    "id": "girin",
+    "external": true,
+    "title": "Girin Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-girin.jpg",
+    "shortDescription": "The Ultimate Crypto Wallet for the #XRPL & #Futureverse Ecosystem",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Girin Wallet",
+    "url": "https://girin.app/",
+    "description": "The Ultimate Crypto Wallet for the #XRPL & #Futureverse Ecosystem",
+    "site": "https://girin.app/"
+  },
+  {
+    "id": "ibc",
+    "external": true,
+    "title": "IBCProtocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ibc.png",
+    "shortDescription": "IBC is a blockchain interoperability protocol used by 100+ chains. It enables secure, permissionless, feature-rich cross-chain interactions.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Cosmos",
+    "url": "https://ibcprotocol.dev/",
+    "description": "IBC is a blockchain interoperability protocol used by 100+ chains. It enables secure, permissionless, feature-rich cross-chain interactions.",
+    "site": "https://ibcprotocol.dev/",
+    "github": "https://github.com/cosmos/ibc"
+  },
+  {
+    "id": "axelar",
+    "external": true,
+    "title": "AXELAR",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axelar.png",
+    "shortDescription": "Axelar is the Web3 interoperability platform for the xrplevm and 69+ chains. An open stack to connect all blockchains. A single click to use and build everywhere.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Axelar Network",
+    "url": "https://www.axelar.network/",
+    "description": "Axelar is the Web3 interoperability platform for the xrplevm and 69+ chains. An open stack to connect all blockchains. A single click to use and build everywhere.",
+    "site": "https://www.axelar.network/",
+    "github": "https://github.com/axelarnetwork"
+  },
+  {
+    "id": "axelarscan",
+    "external": true,
+    "title": "AXELARSCAN",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axelarscan.png",
+    "shortDescription": "Axelarscan is the official explorer for the Axelar network, featuring GMP Search to easily track cross-chain bridge transfers in real time.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Axelar Network",
+    "url": "https://axelarscan.io/gmp/search",
+    "description": "Axelarscan is the go-to explorer for the Axelar network, built to monitor cross-chain activity with precision. Its powerful GMP Search lets users instantly check the status of bridge transfers across connected blockchains—perfect for tracking General Message Passing (GMP) interactions and ensuring cross-chain execution is smooth and secure.",
+    "site": "https://axelarscan.io/",
+    "github": "https://github.com/axelarnetwork/axelarscan-ui"
+  },
+  {
+    "id": "cosmos-explorer",
+    "external": true,
+    "title": "Cosmos Explorer",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cosmos-explorer.png",
+    "shortDescription": "Cosmos based explorer for the XRPLEVM. Monitor governance and validator activity.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Peersyst",
+    "url": "https://governance.xrpl.org",
+    "description": "Explore all validators of the XRPL EVM Sidechain and the governance activity effortlessly on the platform offering insights and real-time updates for seamless participation.",
+    "site": "https://governance.xrpl.org",
+    "github": "https://github.com/Peersyst/xrp-evm-bdjuno"
+  },
+  {
+    "id": "band-protocol",
+    "external": true,
+    "title": "Band Protocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-band-protocol.png",
+    "shortDescription": "Secure, Scalable Cross-Chain Decentralized Oracle - We connect smart contracts to external data and APIs",
+    "categories": [
+      "Oracles"
+    ],
+    "author": "Band Protocol",
+    "url": "https://docs.xrplevm.org/pages/developers/use-oracle-data/band-protocol",
+    "description": "Secure, Scalable Cross-Chain Decentralized Oracle - We connect smart contracts to external data and APIs",
+    "site": "https://www.bandprotocol.com/",
+    "github": "https://github.com/bandprotocol"
+  },
+  {
+    "id": "goldsky",
+    "external": true,
+    "title": "GOLDSKY",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-goldsky.png",
+    "shortDescription": "Goldsky is XRPL EVM Sidechain's Realtime Data Platform",
+    "categories": [
+      "Oracles"
+    ],
+    "author": "Goldsky",
+    "url": "https://goldsky.com/",
+    "description": "Build powerful dApps faster with high-performance blockchain indexing, instant subgraphs, and custom data streaming pipelines.",
+    "site": "https://goldsky.com/"
+  },
+  {
+    "id": "range",
+    "external": true,
+    "title": "Range",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-range.png",
+    "shortDescription": "The blockchain security and intelligence platform",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Range",
+    "url": "https://app.range.org/xrplevm/general",
+    "description": "Helping the best teams build and use DeFi protocols, blockchains, rollups, and cross-chain bridges with peace of mind.",
+    "site": "https://app.range.org/xrplevm/general"
+  },
+  {
+    "id": "reown",
+    "external": true,
+    "title": "reown",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-reown.png",
+    "shortDescription": "Reown empowers builders to create secure, user-friendly and insight-rich wallet and app UX.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://reown.com/",
+    "description": "Reown empowers builders to create secure, user-friendly and insight-rich wallet and app UX. Providing all the tools to launch faster and scale smarter. Effortlessly integrate Reown’s suite of SDKs.",
+    "site": "https://reown.com/"
+  },
+  {
+    "id": "crossmark",
+    "external": true,
+    "title": "Crossmark",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-crossmark.png",
+    "shortDescription": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Crossmark",
+    "url": "https://crossmark.io",
+    "description": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
+    "site": "https://crossmark.io",
+    "github": "https://github.com/crossmarkio"
+  },
+  {
+    "id": "stakeme",
+    "external": true,
+    "title": "Exploreme",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-stakeme.png",
+    "shortDescription": "XRPL Explorer – a faster, smarter, and more user-friendly tool for exploring the XRP project. Gain real-time insights, track transactions seamlessly, and experience a streamlined interface designed.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "XRP Domains",
+    "url": "https://xrpl.exploreme.pro/",
+    "description": "XRPL Explorer – a faster, smarter, and more user-friendly tool for exploring the XRP project. Gain real-time insights, track transactions seamlessly, and experience a streamlined interface designed.",
+    "site": "https://xrpl.exploreme.pro/",
+    "github": "https://github.com/stakeme-team"
+  },
+  {
+    "id": "interscan",
+    "external": true,
+    "title": "Interscan Explorer",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-interscan.png",
+    "shortDescription": "XRPL EVM Explorer supporting both EVM and Cosmos; Type-118 and Type-60 transactions.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Batana Node",
+    "url": "https://xrplevm.interscan.pro/",
+    "description": "XRPL EVM Explorer supporting both EVM and Cosmos; Type-118 and Type-60 transactions.",
+    "site": "https://xrplevm.interscan.pro/"
+  },
+  {
+    "id": "winsnip",
+    "external": true,
+    "title": "Winsnip Explorer",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-winsnip.jpg",
+    "shortDescription": "XRPL EVM Explorer supporting both EVM and Cosmos; Type-118 and Type-60 transactions.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "winnode",
+    "url": "https://winscan.winsnip.xyz/xrpl-mainnet",
+    "description": "XRPL EVM Explorer supporting both EVM and Cosmos; Type-118 and Type-60 transactions.",
+    "site": "https://winscan.winsnip.xyz/xrpl-mainnet"
+  },
+  {
+    "id": "grove",
+    "external": true,
+    "title": "Grove",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-grove.png",
+    "shortDescription": "Scalable Decentralized Infra for Open Protocols.",
+    "categories": [
+      "Services"
+    ],
+    "author": "Grove",
+    "url": "https://docs.grove.city/service-apis/xrplevm-api",
+    "description": "Access decentralized infrastructure for any open source protocol or model.",
+    "site": "https://docs.grove.city/service-apis/xrplevm-api"
+  },
+  {
+    "id": "polkachu",
+    "external": true,
+    "title": "Polkachu",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-polkachu.jpg",
+    "shortDescription": "Polkachu provides XRPL EVM testnet infrastructure: endpoints, installation guides, snapshots, seeds, and tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Snapshot",
+      "Tools",
+      "Content",
+      "Services"
+    ],
+    "author": "Polkachu",
+    "url": "https://polkachu.com/networks/xrp",
+    "description": "Founded by a team of technology professionals, Polkachu secures $485M worth of crypto assets across 112 networks including Aptos, Celestia, CosmosHub, NEAR, and Solana. With a mission to deliver top-tier infrastructure, Polkachu provides XRPL EVM endpoints (API, RPC, gRPC), snapshots, seeds, and state-sync tools. They also assist fellow node operators with free public resources. Polkachu’s extensive multi-chain experience and reliability make them a formidable validator and ecosystem partner.",
+    "site": "https://polkachu.com/networks/xrp",
+    "github": ""
+  },
+  {
+    "id": "cumulo",
+    "external": true,
+    "title": "Cumulo",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cumulo.png",
+    "shortDescription": "Validation platform with node guides, snapshots, advanced metrics, and XRPL EVM endpoints.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Tools",
+      "Snapshot",
+      "Content",
+      "Services"
+    ],
+    "author": "Cumulo.pro",
+    "url": "https://cumulo.pro/services/xrplevm_mainnet/",
+    "description": "Cumulo is a professional validator with a presence in 8 mainnets (Celestia, Avail, Fuel, Dymension, Seda, and more) and 5 testnets. They secure over $60M in delegated assets and manage 7.7k+ active stakers. Their XRPL EVM services include public endpoints (RPC, API, gRPC), node guides, snapshots, advanced metrics dashboards (Grafana, Prometheus), and thorough user support. Cumulo excels in Spanish language community building, content creation, and is known for rapid incident response and technical expertise.",
+    "site": "https://cumulo.pro/services/xrplevm_mainnet/",
+    "github": ""
+  },
+  {
+    "id": "imperator-co",
+    "external": true,
+    "title": "Imperator.co",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-imperator-co.jpg",
+    "shortDescription": "Imperator provides RPC and gRPC endpoints for the XRPL EVM Devnet.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Services"
+    ],
+    "author": "Imperator.co",
+    "url": "https://www.imperator.co/services/chain-services/mainnets/xrp",
+    "description": "Imperator is a trusted Proof-of-Stake validator and blockchain infrastructure provider, with 4+ years of end-to-end infrastructure management. Managing over $400M TVL across 50+ networks, Imperator has clients like Distributed Global, Flowdesk, Leap Wallet, and many others. They run a whitelabel validator on XRP, providing robust RPC, gRPC, snapshots, and more for XRPL EVM Devnet. Imperator focuses on low-latency, high-performance services, plus real-time monitoring and scalability support for foundations and large enterprise users.",
+    "site": "https://www.imperator.co/services/chain-services/mainnets/xrp",
+    "github": ""
+  },
+  {
+    "id": "bitszn",
+    "external": true,
+    "title": "bitszn",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-bitszn.png",
+    "shortDescription": "Bitszn is the team behind valopers.com, a versatile and high-performance multi-chain explorer platform.",
+    "categories": [
+      "Explorer",
+      "Services"
+    ],
+    "author": "Bitszn",
+    "url": "https://xrplevm.valopers.com/",
+    "description": "Bitszn is the team behind valopers.com, a versatile and high-performance multi-chain explorer platform.",
+    "site": "https://xrplevm.valopers.com/",
+    "github": ""
+  },
+  {
+    "id": "posthuman",
+    "external": true,
+    "title": "POSTHUMAN",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-posthuman.png",
+    "shortDescription": "POSTHUMAN is a distributed, community-first validator securing 40+ PoS networks with custom tools, deep governance, and one of the largest delegator communities in Cosmos.",
+    "categories": [
+      "Services"
+    ],
+    "author": "POSTHUMAN",
+    "url": "https://nodes.posthuman.digital/chains/exrp",
+    "description": "POSTHUMAN is a distributed validator securing 40+ networks across Cosmos, Solana, and Kusama. Backed by 150K+ delegators and the $PHMN governance token, they combine infrastructure, education, and ecosystem tools.",
+    "site": "https://nodes.posthuman.digital/chains/exrp",
+    "github": "https://github.com/Validator-POSTHUMAN"
+  },
+  {
+    "id": "nodestake",
+    "external": true,
+    "title": "NodeStake",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nodestake.jpg",
+    "shortDescription": "NodeStake provides XRPL EVM testnet endpoints (API, gRPC, EVM) plus an explorer and network tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Explorer",
+      "Tools",
+      "Services"
+    ],
+    "author": "NodeStake",
+    "url": "https://explorer.nodestake.org/xrp",
+    "description": "NodeStake is a professional validator and IBC relayer operator running across 70+ networks with over $30M in staked assets. They deliver 24/7 monitoring, multi-cloud redundancy, and user-friendly infrastructure. For XRPL EVM, NodeStake provides API/RPC/gRPC/EVM endpoints, seeds, an explorer, and additional network data (peers, seeds, and snapshots). Their extensive multi-chain experience ensures stable performance and top-notch support.",
+    "site": "https://nodestake.org/xrp",
+    "github": ""
+  }
+]
