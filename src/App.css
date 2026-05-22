@@ -365,3 +365,40 @@ body, #root {
     gap: 8px;
   }
 }
+
+/* Async-load status banners (phase-7f). Rendered below the cards grid
+   when fetching the explorer-apps registry from S3 fails or falls back
+   to the bundled snapshot. Kept minimal and non-blocking on purpose. */
+.app-load-banner {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+.app-load-banner-error {
+  background: #fff1f1;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+}
+.app-load-banner-warn {
+  background: #fff8e1;
+  color: #6b4f00;
+  border: 1px solid #ffe082;
+}
+.app-load-banner button {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
