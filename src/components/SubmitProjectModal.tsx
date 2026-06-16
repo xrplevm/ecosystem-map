@@ -65,11 +65,27 @@ const SubmitProjectModal: React.FC<SubmitProjectModalProps> = ({ isOpen, onClose
         };
     }, [isOpen]);
 
+    // Tracks the form's unsaved-changes state so close actions can confirm
+    // before discarding input.
+    const isDirtyRef = useRef(false);
+    const handleDirtyChange = useCallback((dirty: boolean) => {
+        isDirtyRef.current = dirty;
+    }, []);
+    const requestClose = useCallback(() => {
+        if (
+            isDirtyRef.current &&
+            !window.confirm("Discard your submission? Your unsaved changes will be lost.")
+        ) {
+            return;
+        }
+        onClose();
+    }, [onClose]);
+
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLDivElement>) => {
             if (e.key === "Escape") {
                 e.stopPropagation();
-                onClose();
+                requestClose();
                 return;
             }
             if (e.key !== "Tab") {
@@ -98,7 +114,7 @@ const SubmitProjectModal: React.FC<SubmitProjectModalProps> = ({ isOpen, onClose
                 first.focus();
             }
         },
-        [onClose],
+        [requestClose],
     );
 
     const handleOverlayMouseDown = useCallback(
@@ -107,10 +123,10 @@ const SubmitProjectModal: React.FC<SubmitProjectModalProps> = ({ isOpen, onClose
             // a drag selection ends there. Comparing target === currentTarget
             // is the standard way to ignore bubbling from the dialog children.
             if (e.target === e.currentTarget) {
-                onClose();
+                requestClose();
             }
         },
-        [onClose],
+        [requestClose],
     );
 
     const stopMouseDownPropagation = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -154,13 +170,13 @@ const SubmitProjectModal: React.FC<SubmitProjectModalProps> = ({ isOpen, onClose
                     <button
                         type="button"
                         className="submit-modal-close"
-                        onClick={onClose}
+                        onClick={requestClose}
                         aria-label="Close submission form"
                     >
                         &times;
                     </button>
                 </div>
-                <SubmitProjectForm />
+                <SubmitProjectForm onDirtyChange={handleDirtyChange} />
             </div>
         </div>
     );

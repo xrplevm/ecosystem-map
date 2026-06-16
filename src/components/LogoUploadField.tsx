@@ -126,84 +126,77 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
         [onChange, disabled],
     );
 
-    const handleRemove = useCallback(
-        (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.stopPropagation();
-            onChange(undefined);
-        },
-        [onChange],
-    );
-
-    const handleRemoveKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>) => {
-        // Stop propagation so the dropzone's Enter/Space handler doesn't
-        // re-open the picker after the remove keystroke.
-        e.stopPropagation();
-    }, []);
+    const handleRemove = useCallback(() => {
+        onChange(undefined);
+    }, [onChange]);
 
     return (
-        <div
-            className="submit-logo-dropzone"
-            data-has-file={value !== undefined}
-            data-dragging={isDragging}
-            data-invalid={invalid}
-            role="button"
-            tabIndex={disabled === true ? -1 : 0}
-            aria-disabled={disabled}
-            aria-describedby={errorId}
-            aria-label="Upload project logo"
-            onClick={openPicker}
-            onKeyDown={handleKeyDown}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onBlur={onBlur}
-        >
-            <input
-                ref={inputRef}
-                id={id}
-                type="file"
-                accept={ACCEPT_ATTR}
-                className="submit-logo-hidden-input"
-                onChange={handleInputChange}
-                disabled={disabled}
-                tabIndex={-1}
-                aria-hidden="true"
-            />
-            <div className="submit-logo-preview">
-                {value !== undefined && previewUrl !== undefined ? (
-                    <img src={previewUrl} alt="Selected logo preview" />
-                ) : (
-                    <span className="submit-logo-preview-icon" aria-hidden="true">
-                        <UploadIcon />
-                    </span>
-                )}
-            </div>
-            <div className="submit-logo-body">
-                {value === undefined ? (
-                    <>
-                        <span className="submit-logo-primary">Drop a logo or click to browse</span>
-                        <span className="submit-logo-secondary">
-                            PNG, JPG, SVG, or WebP · up to {LOGO_MAX_KB}KB
+        <div className="submit-logo-field">
+            <div
+                className="submit-logo-dropzone"
+                data-has-file={value !== undefined}
+                data-dragging={isDragging}
+                data-invalid={invalid}
+                role="button"
+                tabIndex={disabled === true ? -1 : 0}
+                aria-disabled={disabled}
+                aria-describedby={errorId}
+                aria-label="Upload project logo"
+                onClick={openPicker}
+                onKeyDown={handleKeyDown}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onBlur={onBlur}
+            >
+                <input
+                    ref={inputRef}
+                    id={id}
+                    type="file"
+                    accept={ACCEPT_ATTR}
+                    className="submit-logo-hidden-input"
+                    onChange={handleInputChange}
+                    disabled={disabled}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                />
+                <div className="submit-logo-preview">
+                    {value !== undefined && previewUrl !== undefined ? (
+                        <img src={previewUrl} alt="Selected logo preview" width={96} height={96} />
+                    ) : (
+                        <span className="submit-logo-preview-icon" aria-hidden="true">
+                            <UploadIcon />
                         </span>
-                    </>
-                ) : (
-                    <>
-                        <span className="submit-logo-primary">{value.name}</span>
-                        <span className="submit-logo-secondary">
-                            {formatBytes(value.size)} · {prettyMime(value.type)}
-                        </span>
-                        <button
-                            type="button"
-                            className="submit-logo-remove"
-                            onClick={handleRemove}
-                            onKeyDown={handleRemoveKeyDown}
-                            disabled={disabled}
-                        >
-                            Remove
-                        </button>
-                    </>
-                )}
+                    )}
+                </div>
+                <div className="submit-logo-body">
+                    {value === undefined ? (
+                        <>
+                            <span className="submit-logo-primary">Drop a logo or click to browse</span>
+                            <span className="submit-logo-secondary">
+                                PNG, JPG, SVG, or WebP · up to {LOGO_MAX_KB}KB
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="submit-logo-primary">{value.name}</span>
+                            <span className="submit-logo-secondary">
+                                {formatBytes(value.size)} · {prettyMime(value.type)}
+                            </span>
+                        </>
+                    )}
+                </div>
             </div>
+            {value !== undefined && (
+                <button
+                    type="button"
+                    className="submit-logo-remove"
+                    onClick={handleRemove}
+                    disabled={disabled}
+                >
+                    Remove
+                </button>
+            )}
         </div>
     );
 };

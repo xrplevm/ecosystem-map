@@ -27,6 +27,8 @@ import {
 
 interface SubmitProjectFormProps {
     onSuccess?: (result: { submissionId: string; slug: string }) => void;
+    /** Notifies the parent when the form gains/loses unsaved changes. */
+    onDirtyChange?: (dirty: boolean) => void;
 }
 
 type BannerState =
@@ -59,7 +61,7 @@ const ERROR_COPY_BY_CODE: Partial<Record<SubmissionErrorCode, string>> = {
 const DEFAULT_ERROR_COPY = "Submission failed. Please try again later.";
 const NETWORK_ERROR_COPY = "Couldn't reach the server. Check your connection and retry.";
 const SUCCESS_COPY =
-    "Submitted! Maintainers will review on Slack. You'll get a GitHub PR notification if approved.";
+    "Submitted! Maintainers review every submission on Slack and add approved projects to the map.";
 
 function copyForBackendError(body: BackendErrorBody | undefined): string {
     const code = body?.code;
@@ -93,7 +95,7 @@ function counterState(length: number, max: number): DescriptionCounterState {
     return "ok";
 }
 
-const SubmitProjectForm: React.FC<SubmitProjectFormProps> = ({ onSuccess }) => {
+const SubmitProjectForm: React.FC<SubmitProjectFormProps> = ({ onSuccess, onDirtyChange }) => {
     const baseId = useId();
     const successTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const [banner, setBanner] = useState<BannerState>({ variant: "idle" });
@@ -102,7 +104,7 @@ const SubmitProjectForm: React.FC<SubmitProjectFormProps> = ({ onSuccess }) => {
         register,
         control,
         handleSubmit,
-        formState: { errors, isSubmitting },
+        formState: { errors, isSubmitting, isDirty },
         watch,
         reset,
     } = useForm<SubmissionFormValues>({
@@ -131,6 +133,11 @@ const SubmitProjectForm: React.FC<SubmitProjectFormProps> = ({ onSuccess }) => {
             }
         };
     }, []);
+
+    // Surface dirty state so the modal can warn before discarding input.
+    useEffect(() => {
+        onDirtyChange?.(isDirty);
+    }, [isDirty, onDirtyChange]);
 
     const description = watch("description") ?? "";
     const descriptionLen = description.length;

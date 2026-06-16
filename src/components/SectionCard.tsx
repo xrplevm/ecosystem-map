@@ -23,7 +23,15 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, entries }) => {
                     return (
                         <div className="logo-wrapper" key={entry.id}>
                             <a href={entry.url} target="_blank" rel="noopener noreferrer">
-                                <img src={entry.logo} alt={entry.title} className="logo-image" />
+                                <img
+                                    src={entry.logo}
+                                    alt={entry.title}
+                                    className="logo-image"
+                                    width={48}
+                                    height={48}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                             </a>
                         </div>
                     );

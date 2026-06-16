@@ -7,8 +7,23 @@ const ECOSYSTEM_SVG = "/assets/ECOSYSTEM.svg";
 const Header: React.FC = () => {
   return (
     <div className="header-container">
-      <img src={XRPL_LOGO} alt="XRPL EVM Sidechain Logo" className="xrpl-logo" />
-      <img src={ECOSYSTEM_SVG} alt="ECOSYSTEM" className="ecosystem-svg" />
+      <img
+        src={XRPL_LOGO}
+        alt="XRPL EVM Sidechain Logo"
+        className="xrpl-logo"
+        width={298}
+        height={64}
+        decoding="async"
+        fetchPriority="high"
+      />
+      <img
+        src={ECOSYSTEM_SVG}
+        alt="ECOSYSTEM"
+        className="ecosystem-svg"
+        width={377}
+        height={75}
+        decoding="async"
+      />
     </div>
   );
 };

@@ -1,3 +1,8 @@
+:root {
+  /* Dark UI: fixes native scrollbars, form controls, and the canvas color. */
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: 'Work Sans', sans-serif;

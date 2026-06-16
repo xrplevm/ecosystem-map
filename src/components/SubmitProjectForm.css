@@ -428,6 +428,12 @@
 }
 
 /* ===== Logo dropzone ===== */
+.submit-logo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .submit-logo-dropzone {
     border: 1.5px dashed var(--sf-border);
     border-radius: var(--sf-radius-field);

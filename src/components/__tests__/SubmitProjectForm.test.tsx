@@ -160,7 +160,7 @@ describe("SubmitProjectForm", () => {
         expect(body.has("description")).toBe(false);
         expect(body.has("submitterName")).toBe(false);
 
-        await screen.findByText(/maintainers will review on slack/i);
+        await screen.findByText(/maintainers review every submission on slack/i);
     });
 
     test("arrow keys move selection across the section radiogroup", async () => {

@@ -354,6 +354,14 @@ body, #root {
   transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .app-footer a,
+  .app-footer.hidden,
+  .app-footer.visible {
+    transition: none;
+  }
+}
+
 /* Prevent content from being hidden behind the fixed footer */
 .cards-layout {
   padding-bottom: 90px; /* restore this line */
