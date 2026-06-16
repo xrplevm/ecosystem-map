@@ -54,7 +54,11 @@ re-sourced from Airtable instead of from Slack message metadata.
      `explorer-apps.json` → set the row `Status = Approved` (+ store the S3 logo
      URL and registry id). **This is the only S3 write.**
    - **Reject** per row: set `Status = Rejected`. No S3.
-   - Results roll up into the existing batch summary message.
+   - Results roll up into the existing batch summary message. **After a
+     successful batch, the updated `explorer-apps.json` (as a file) and each
+     newly added logo (the normalised 250×250 PNG) are uploaded to the approval
+     channel, threaded under the summary** — a Slack-side record of exactly what
+     was added. Nothing is uploaded when zero rows were approved.
 
 ## Airtable schema
 
@@ -117,8 +121,15 @@ with an inline modal error.)
 
 **Changed — `api/slack/actions.ts` `handleApprove` → `handlePendingDecision`:**
 process the approve set (fetch logo → `normalizeLogo` → `putLogo` → registry
-write → `setStatus(Approved)`) and the reject set (`setStatus(Rejected)`).
-Remove the edit-flow re-audit.
+write → `setStatus(Approved)`) and the reject set (`setStatus(Rejected)`). On a
+successful batch, call a new `postApprovalArtifacts` helper that uploads the
+updated `explorer-apps.json` and each added logo PNG to the channel (Slack
+`files.uploadV2`, threaded under the summary). Remove the edit-flow re-audit.
+
+**New — `src/lib/slack-batch.ts` `postApprovalArtifacts`:** upload the final
+registry JSON (re-read after the `withEtagRetry` write) plus the in-memory added
+logo bytes as Slack file attachments. Requires the bot's `files:write` scope
+(already listed). Skipped when the approved set is empty.
 
 **Removed (Claude audit):** `src/lib/audit.ts`, `src/lib/__tests__/audit.test.ts`,
 the audit calls in `api/submit.ts` and `api/slack/actions.ts`, the
@@ -133,8 +144,10 @@ the audit calls in `api/submit.ts` and `api/slack/actions.ts`, the
 
 Add to `src/lib/env.ts` (fail-fast Zod) and `.env.example`:
 - `AIRTABLE_API_KEY` — Airtable Personal Access Token. Scopes:
-  `data.records:read`, `data.records:write`, and `schema.bases:write` (the last
-  only needed for the one-time field-provisioning script).
+  `data.records:read`, `data.records:write`, plus `schema.bases:read` and
+  `schema.bases:write` (the two schema scopes only needed for the one-time
+  field-provisioning script — write resolves the table via the schema surface,
+  which also requires read).
 - `AIRTABLE_BASE_ID` — `appDFL9N9MDWj0Ywd`.
 - `AIRTABLE_TABLE_ID` — `tblSXGty3mcKj7F62`.
 
@@ -167,6 +180,9 @@ fresh URL immediately before download.
 - `handlePendingDecision`: stub `airtable` + `s3-client` + `normalizeLogo`;
   assert S3 is written only for approved rows, rows are marked Approved/Rejected,
   and overlap is rejected.
+- `postApprovalArtifacts`: stub `fetch`; assert the updated `explorer-apps.json`
+  and one file per added logo are uploaded, and that nothing uploads when zero
+  rows were approved.
 - Delete `audit.test.ts`; update `slack-actions.test.ts` to drop audit.
 - `normalizeLogo` is already verified via a Node/`tsx` run (sharp does not load
   under `react-scripts` jest).
@@ -176,8 +192,9 @@ fresh URL immediately before download.
 `scripts/airtable-setup.ts` (npm script `airtable:setup`, run with `tsx`):
 idempotent — lists current fields via the metadata API and `POST`s the missing
 ones (`/v0/meta/bases/{baseId}/tables/{tableId}/fields`). Run once with a PAT
-that has `schema.bases:write`. **Prerequisite for implementation:** the user
-provides the PAT so this script (and the Airtable integration tests) can run.
+that has `schema.bases:read` + `schema.bases:write`. **Prerequisite for
+implementation:** the user provides the PAT so this script (and the Airtable
+integration tests) can run.
 
 ## Out of scope / future
 
