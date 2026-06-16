@@ -2,22 +2,23 @@ import type { ExplorerApp, ExplorerAppSurface, ExplorerAppsJson } from "./explor
 import type { SectionId } from "../data/types";
 
 /**
- * Browser-side loader for the canonical `explorer-apps.json` registry
- * served from S3 (sub-task A's bucket). Used by the ecosystem-map and
- * the in-app explorer-apps surface.
+ * Browser-side loader for the canonical `explorer-apps.json` registry.
+ * Used by the ecosystem-map and the in-app explorer-apps surface.
  *
  * Strategy:
- *  1. fetch the live S3 URL.
- *  2. on network/parse failure, fall back to the bundled snapshot in
- *     `public/explorer-apps.snapshot.json` (built at deploy time).
- *  3. if both fail, throw a typed error so the UI can render a degraded
- *     state with a retry affordance.
+ *  1. resolve the remote URL from an explicit `remoteUrl` override or the
+ *     `REACT_APP_EXPLORER_APPS_URL` env var.
+ *  2. if a remote URL is configured, fetch it; on network/parse failure
+ *     fall back to the bundled snapshot in `public/explorer-apps.snapshot.json`.
+ *  3. if no remote URL is configured (the env var is unset), serve the
+ *     bundled snapshot directly — it is the local source of truth.
+ *  4. if the snapshot also fails, throw a typed error so the UI can render
+ *     a degraded state with a retry affordance.
  *
- * The default URL points at the `peersyst-development` bucket; a deploy
- * override is exposed through `REACT_APP_EXPLORER_APPS_URL`.
+ * There is intentionally no hardcoded default bucket: an unset
+ * `REACT_APP_EXPLORER_APPS_URL` means "use the local snapshot".
  */
 
-const DEFAULT_REMOTE_URL = "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-apps.json";
 const SNAPSHOT_URL = "/explorer-apps.snapshot.json";
 
 const DEFAULT_SURFACES: ExplorerAppSurface[] = ["explorer-apps"];
@@ -50,7 +51,16 @@ export class ExplorerAppsLoadError extends Error {
     }
 }
 
-function getRemoteUrl(override?: string): string {
+/**
+ * Resolve the configured remote registry URL, or `null` when none is set.
+ *
+ * Precedence: explicit `override` (tests / deploy) → `REACT_APP_EXPLORER_APPS_URL`
+ * → none. Returning `null` is meaningful: the loader serves the bundled local
+ * snapshot instead of reaching out to a hardcoded bucket, so the in-repo
+ * `public/explorer-apps.snapshot.json` is the source of truth for local dev and
+ * any deploy that does not set the env var.
+ */
+function getRemoteUrl(override?: string): string | null {
     if (override) {
         return override;
     }
@@ -58,7 +68,7 @@ function getRemoteUrl(override?: string): string {
     // through this guarded form avoids a ReferenceError on environments
     // (Node test runner) where `process` is shimmed but the var is unset.
     const fromEnv = typeof process !== "undefined" ? process.env?.REACT_APP_EXPLORER_APPS_URL : undefined;
-    return fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_REMOTE_URL;
+    return fromEnv && fromEnv.length > 0 ? fromEnv : null;
 }
 
 function withCacheBuster(url: string): string {
@@ -94,9 +104,11 @@ function assertExplorerAppsJson(value: unknown): asserts value is ExplorerAppsJs
 }
 
 /**
- * Fetch the registry from S3, falling back to the bundled snapshot if the
- * network call fails. Resolves to `{ apps, source }` so callers can show a
- * "stale data" notice when `source === "snapshot"`.
+ * Load the registry. When a remote URL is configured (via `remoteUrl` or
+ * `REACT_APP_EXPLORER_APPS_URL`) it is fetched first, falling back to the
+ * bundled snapshot on failure. When no remote URL is configured the bundled
+ * snapshot is served directly. Resolves to `{ apps, source }` so callers can
+ * show a "stale data" notice when `source === "snapshot"`.
  */
 export async function loadExplorerApps(options: LoadOptions = {}): Promise<LoadResult> {
     const fetchImpl = options.fetchImpl ?? (typeof fetch !== "undefined" ? fetch : undefined);
@@ -105,6 +117,13 @@ export async function loadExplorerApps(options: LoadOptions = {}): Promise<LoadR
     }
 
     const remoteBase = getRemoteUrl(options.remoteUrl);
+
+    // No remote configured (no override, no REACT_APP_EXPLORER_APPS_URL):
+    // serve the bundled local snapshot directly rather than a hardcoded bucket.
+    if (remoteBase === null) {
+        return loadSnapshot(fetchImpl);
+    }
+
     const remoteUrl = options.bypassCache ? withCacheBuster(remoteBase) : remoteBase;
 
     let remoteCause: unknown;
@@ -116,13 +135,24 @@ export async function loadExplorerApps(options: LoadOptions = {}): Promise<LoadR
         remoteCause = error;
     }
 
+    return loadSnapshot(fetchImpl, remoteCause);
+}
+
+/**
+ * Load and validate the bundled snapshot. `remoteCause` is threaded through
+ * (when present) so a combined failure carries both the remote and snapshot
+ * errors; when absent the snapshot was the primary source.
+ */
+async function loadSnapshot(fetchImpl: typeof fetch, remoteCause?: unknown): Promise<LoadResult> {
     try {
         const json = await fetchJson(SNAPSHOT_URL, fetchImpl);
         assertExplorerAppsJson(json);
         return { apps: json, source: "snapshot" };
     } catch (snapshotCause) {
         throw new ExplorerAppsLoadError(
-            "Failed to load explorer-apps.json from S3 and from the bundled snapshot",
+            remoteCause === undefined
+                ? "Failed to load explorer-apps.json from the bundled snapshot"
+                : "Failed to load explorer-apps.json from S3 and from the bundled snapshot",
             remoteCause,
             snapshotCause,
         );

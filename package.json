@@ -20,6 +20,7 @@
     "react-dom": "19.2.3",
     "react-hook-form": "^7.76.0",
     "react-scripts": "5.0.1",
+    "sharp": "^0.35.1",
     "typescript": "4.9.5",
     "web-vitals": "5.1.0",
     "zod": "^3.25.76"
@@ -32,6 +33,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"api/**/*.ts\" \"scripts/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "generate-seed": "tsx scripts/generate-seed.ts",
+    "airtable:setup": "tsx scripts/airtable-setup.ts",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -8,6 +8,7 @@ import {
     SubmissionErrorCode,
 } from "../src/lib/errors";
 import type { ExplorerApp } from "../src/lib/explorer-apps-types";
+import { LOGO_CONTENT_TYPE, normalizeLogo } from "../src/lib/logo-image";
 import { parseMultipart, type MultipartFieldValue } from "../src/lib/multipart";
 import { putLogo } from "../src/lib/s3-client";
 import { explorerAppSchema } from "../src/lib/schemas/explorer-app";
@@ -23,8 +24,9 @@ import { slugify } from "../src/lib/slug";
  * so the `/explorer-admin` modal can list it from `conversations.history`.
  *
  * Phase-7e shape (post-PR-flow retirement):
- *   - Logo bytes go to S3 (`explorer-dapp-<id>.<ext>`), and the resulting
- *     URL is the value we store in the entry's `logo` field.
+ *   - The logo is normalised to a 250×250 PNG with 30px rounded corners and
+ *     stored in S3 as `explorer-dapp-<id>.png`; the resulting URL is the
+ *     value we store in the entry's `logo` field.
  *   - The Slack message has NO Approve/Reject buttons — those moved to
  *     the multi-mode admin modal. Approval is a batch-write keyed by
  *     metadata + Slack reactions (✅/❌).
@@ -37,12 +39,6 @@ export const config = {
 };
 
 const ALLOWED_LOGO_MIME = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
-const ALLOWED_LOGO_EXT_BY_MIME: Record<string, string> = {
-    "image/png": ".png",
-    "image/jpeg": ".jpg",
-    "image/svg+xml": ".svg",
-    "image/webp": ".webp",
-};
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
     setCorsHeaders(res);
@@ -92,9 +88,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
             );
         }
 
-        const logoExt = ALLOWED_LOGO_EXT_BY_MIME[parsed.file.mimeType];
-        const logoKey = `explorer-dapp-${id}${logoExt}`;
-        const { url: logoUrl } = await putLogo(logoKey, parsed.file.bytes, parsed.file.mimeType);
+        // Normalise every submitted logo to the canonical 250×250 PNG with
+        // 30px rounded corners so the ecosystem-map grid stays visually
+        // uniform. The stored object is always a PNG regardless of upload type.
+        let logoBytes: Buffer;
+        try {
+            logoBytes = await normalizeLogo(parsed.file.bytes);
+        } catch {
+            throw new SubmissionError(
+                SubmissionErrorCode.INVALID_LOGO_TYPE,
+                "Logo could not be processed as an image",
+            );
+        }
+        const logoKey = `explorer-dapp-${id}.png`;
+        const { url: logoUrl } = await putLogo(logoKey, logoBytes, LOGO_CONTENT_TYPE);
 
         const author = submission.author ?? submission.submitterName ?? "Unknown";
         const categories = submission.categories === undefined || submission.categories.length === 0

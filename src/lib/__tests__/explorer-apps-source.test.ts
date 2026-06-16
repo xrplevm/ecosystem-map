@@ -96,6 +96,53 @@ describe("loadExplorerApps", () => {
             ExplorerAppsLoadError,
         );
     });
+
+    describe("when no remote URL is configured", () => {
+        const ENV_KEY = "REACT_APP_EXPLORER_APPS_URL";
+        let prevEnv: string | undefined;
+
+        beforeEach(() => {
+            prevEnv = process.env[ENV_KEY];
+            delete process.env[ENV_KEY];
+        });
+
+        afterEach(() => {
+            if (prevEnv === undefined) {
+                delete process.env[ENV_KEY];
+            } else {
+                process.env[ENV_KEY] = prevEnv;
+            }
+        });
+
+        test("serves the bundled snapshot directly without hitting any remote", async () => {
+            const apps = [minimalEntry({ id: "from-snapshot" })];
+            const fetchImpl = jest.fn().mockResolvedValue(jsonResponse(apps));
+
+            const result = await loadExplorerApps({ fetchImpl });
+
+            expect(result.source).toBe("snapshot");
+            expect(result.apps).toEqual(apps);
+            expect(fetchImpl).toHaveBeenCalledTimes(1);
+            expect(fetchImpl).toHaveBeenCalledWith("/explorer-apps.snapshot.json");
+        });
+
+        test("uses REACT_APP_EXPLORER_APPS_URL as the remote when it is set", async () => {
+            process.env[ENV_KEY] = "https://env.test/explorer-apps.json";
+            const fetchImpl = jest.fn().mockResolvedValue(jsonResponse([minimalEntry({})]));
+
+            const result = await loadExplorerApps({ fetchImpl });
+
+            expect(result.source).toBe("remote");
+            expect(fetchImpl).toHaveBeenCalledWith("https://env.test/explorer-apps.json");
+        });
+
+        test("throws ExplorerAppsLoadError when the snapshot itself fails", async () => {
+            const fetchImpl = jest.fn().mockRejectedValue(new Error("snapshot boom"));
+
+            await expect(loadExplorerApps({ fetchImpl })).rejects.toBeInstanceOf(ExplorerAppsLoadError);
+            expect(fetchImpl).toHaveBeenCalledTimes(1);
+        });
+    });
 });
 
 describe("groupByEcosystemSection", () => {

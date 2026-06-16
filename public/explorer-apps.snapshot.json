@@ -847,21 +847,6 @@
     "site": "https://reown.com/"
   },
   {
-    "id": "crossmark",
-    "external": true,
-    "title": "Crossmark",
-    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-crossmark.png",
-    "shortDescription": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
-    "categories": [
-      "Wallet"
-    ],
-    "author": "Crossmark",
-    "url": "https://crossmark.io",
-    "description": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
-    "site": "https://crossmark.io",
-    "github": "https://github.com/crossmarkio"
-  },
-  {
     "id": "stakeme",
     "external": true,
     "title": "Exploreme",
@@ -1024,5 +1009,2155 @@
     "description": "NodeStake is a professional validator and IBC relayer operator running across 70+ networks with over $30M in staked assets. They deliver 24/7 monitoring, multi-cloud redundancy, and user-friendly infrastructure. For XRPL EVM, NodeStake provides API/RPC/gRPC/EVM endpoints, seeds, an explorer, and additional network data (peers, seeds, and snapshots). Their extensive multi-chain experience ensures stable performance and top-notch support.",
     "site": "https://nodestake.org/xrp",
     "github": ""
+  },
+  {
+    "id": "metamask-wallets",
+    "external": true,
+    "title": "MetaMask",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-metamask.jpg",
+    "shortDescription": "MetaMask is the leading self-custody crypto wallet trusted by millions.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Consensys",
+    "url": "https://metamask.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "keplr-wallets",
+    "external": true,
+    "title": "Keplr",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-keplr.png",
+    "shortDescription": "Introducing Keplr, the fast,simple, secure wallet that plugs you into any blockchains and apps wherever you go. Pioneering its ways in the multichain future from day one.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Keplr",
+    "url": "https://www.keplr.app/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "leap-wallets",
+    "external": true,
+    "title": "Leap Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-leap.png",
+    "shortDescription": "🐸 the interchain & modular wallet that loves you ✨ swaps, staking, airdrops, DeFi & more 👩‍🚀 trusted by 800k+ users",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "LeapWallet",
+    "url": "https://www.leapwallet.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "cosmostation-wallets",
+    "external": true,
+    "title": "Cosmostation Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cosmostation.png",
+    "shortDescription": "Non-custodial multi-chain cryptocurrency browser extension wallet.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://www.cosmostation.io/products/cosmostation_extension",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "dcent-wallets",
+    "external": true,
+    "title": "D'CENT Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-dcent.png",
+    "shortDescription": "D’CENT Hardware Wallet secures your crypto, rewards your trust — and gives more to those who hold the key.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "D'CENT Wallet",
+    "url": "https://www.dcentwallet.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "reown-wallets",
+    "external": true,
+    "title": "reown",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-reown.png",
+    "shortDescription": "Reown empowers builders to create secure, user-friendly and insight-rich wallet and app UX.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://reown.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "bifrost-wallets",
+    "external": true,
+    "title": "Bifrost",
+    "logo": "/assets/sections/wallets/bifrost.png",
+    "shortDescription": "Bifrost",
+    "categories": [
+      "wallet"
+    ],
+    "author": "Bifrost",
+    "url": "https://bifrostwallet.com",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "metamask-snap-wallets",
+    "external": true,
+    "title": "XRPL MetaMask Snap",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-metamask-snap.png",
+    "shortDescription": "The MetaMask Snap allows the XRPL, a non-EVM blockchain, to integrate with the MetaMask browser wallet at no cost.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Peersyst",
+    "url": "https://wallet.xrplevm.org",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "crossmark-wallets",
+    "external": true,
+    "title": "Crossmark",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-crossmark.jpg",
+    "shortDescription": "CROSSMARK is a browser-first wallet with AMM and X-chain support for the XRP Ledger.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Crossmark",
+    "url": "https://crossmark.io",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "xaman-wallets",
+    "external": true,
+    "title": "Xaman Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xaman.jpg",
+    "shortDescription": "The leading self-custodial wallet for the XRPL. Built by XRPLLabs",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "XRPLLabs",
+    "url": "https://xaman.app",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "joey-wallets",
+    "external": true,
+    "title": "Joey Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-joey.jpg",
+    "shortDescription": "Comfiest Wallet on the XRPL",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Joey Wallet",
+    "url": "https://joeywallet.xyz",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "girin-wallets",
+    "external": true,
+    "title": "Girin Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-girin.jpg",
+    "shortDescription": "The Ultimate Crypto Wallet for the #XRPL & #Futureverse Ecosystem",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Girin Wallet",
+    "url": "https://girin.app",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "wallets"
+  },
+  {
+    "id": "axelar-bridges",
+    "external": true,
+    "title": "AXELAR",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axelar.png",
+    "shortDescription": "Axelar is the Web3 interoperability platform for the xrplevm and 69+ chains. An open stack to connect all blockchains. A single click to use and build everywhere.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Axelar Network",
+    "url": "https://www.axelar.network/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "ibc-bridges",
+    "external": true,
+    "title": "IBCProtocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ibc.png",
+    "shortDescription": "IBC is a blockchain interoperability protocol used by 100+ chains. It enables secure, permissionless, feature-rich cross-chain interactions.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Cosmos",
+    "url": "https://ibcprotocol.dev/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "squid-bridges",
+    "external": true,
+    "title": "Squid",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-squid.png",
+    "shortDescription": "Squid and Axelar power cross-chain connection between XRPL, XRPL EVM, and 80+ chains. Squid's API, SDK, and Widget offer developers the integration tools to enable seamless connectivity across ecosystems.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Squid",
+    "url": "https://app.squidrouter.com/xrpl-xrpl-evm",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "skip-bridges",
+    "external": true,
+    "title": "Skip Go",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-skip.png",
+    "shortDescription": "Seamless cross-chain bridging powered by IBC and Axelar.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Cosmos",
+    "url": "https://go.skip.build/?src_asset=uatom&src_chain=cosmoshub-4&dest_asset=axrp&dest_chain=xrplevm_1440000-1&amount_in=&amount_out=",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "gas-zip-bridges",
+    "external": true,
+    "title": "Gas.zip",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-gas-zip.png",
+    "shortDescription": "Instant one-stop refuel bridge for 350+ chains.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Gas.zip",
+    "url": "https://www.gas.zip/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "cobridge-bridges",
+    "external": true,
+    "title": "COBRIDGE",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cobridge.png",
+    "shortDescription": "coBridge is a fast and secure EVM cross-chain bridge enabling seamless asset and data transfers between Ethereum-compatible blockchains.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "CoLabs",
+    "url": "https://cobridge.xyz",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "bridges"
+  },
+  {
+    "id": "axiom-dapps",
+    "external": true,
+    "title": "Axiom Protocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axiom.png",
+    "shortDescription": "A decentralized prediction market, built for believers. Enjoy fast-paced and unique markets. Use your knowledge to make money. Powered by $XRP",
+    "categories": [
+      "Prediction Market"
+    ],
+    "author": "Gen3Labs",
+    "url": "https://www.axiomprotocol.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "blumefi-dapps",
+    "external": true,
+    "title": "Blume Finance",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-blumefi.png",
+    "shortDescription": "Agent-native DeFi on XRPL EVM. Perpetuals. Swaps. Fair launches. Governance. Built for agents and humans alike. Trade. Grow. Blume.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Blume Finance",
+    "url": "https://blumefi.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "conft-dapps",
+    "external": true,
+    "title": "conft",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-conft.png",
+    "shortDescription": "conft - a Multi-Chain Web3 Utility Hub offering comprehensive services such as Web3 Name Service, NFT Aggregator, and Launchpad.",
+    "categories": [
+      "NFT"
+    ],
+    "author": "CoLabs",
+    "url": "https://conft.app",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "elys-network-dapps",
+    "external": true,
+    "title": "Elys Network",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-elys-network.png",
+    "shortDescription": "One Investing App. Every market. Built for everyone",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Elys Network",
+    "url": "https://app.elys.network/earn/vaults",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "helix-dapps",
+    "external": true,
+    "title": "Helix App",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-helix.png",
+    "shortDescription": "The premier decentralized exchange on Injective. Trade on-chain perps, spot, and tradfi assets 24/7 with leverage.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Helix App",
+    "url": "https://helixapp.com/futures/xrp-usdt-perp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "easya-dapps",
+    "external": true,
+    "title": "EasyA",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-easya.png",
+    "shortDescription": "EasyA is the world's biggest Web3 education app. With its XRP Ledger EVM Sidechain crash course, you can learn everything you need to know to start building on the XRP Ledger EVM Sidechain.",
+    "categories": [
+      "Learning"
+    ],
+    "author": "EasyA",
+    "url": "https://easya.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "xrise33-dapps",
+    "external": true,
+    "title": "XRiSE33",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xrise33.png",
+    "shortDescription": "XRiSE33 is a cooperative ecosystem on XRPL EVM, aligning incentives using vote-escrow tokens to reward long-term commitment and collective growth.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "XRiSE33",
+    "url": "https://xrise33.com",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "copass-dapps",
+    "external": true,
+    "title": "Co Pass",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-copass.png",
+    "shortDescription": "Proof of Human , sybil-resistant identity verification protocol.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "CoLabs",
+    "url": "https://copass.app",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "copump-dapps",
+    "external": true,
+    "title": "COPUMP",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-copump.png",
+    "shortDescription": "coPump - A launchpad for meme tokens, enabling rapid and efficient token launches, driving initial liquidity and user excitement.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "CoLabs",
+    "url": "https://copump.xyz",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "hammy-swap-dapps",
+    "external": true,
+    "title": "Hammy Swap",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-hammy-swap.jpg",
+    "shortDescription": "Hammy Swap is the pioneer DEX on the XRPL EVM Sidechain. It offers seamless swap and yield-farming services, combining security, cost-effectiveness and a user-friendly experience.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Hammy Finance",
+    "url": "https://hammy.finance/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "xrplnames-dapps",
+    "external": true,
+    "title": "Xrplnames",
+    "logo": "/assets/sections/dapps/xrplnames.png",
+    "shortDescription": "Xrplnames",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Xrplnames",
+    "url": "https://xrplnames.xyz/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "onchaingm-dapps",
+    "external": true,
+    "title": "Onchaingm",
+    "logo": "/assets/sections/dapps/onchaingm.png",
+    "shortDescription": "Onchaingm",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Onchaingm",
+    "url": "https://onchaingm.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "nexus-dapps",
+    "external": true,
+    "title": "The Nexus Portal",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nexus.png",
+    "shortDescription": "A multi-dimensional DeFi ecosystem, with a unique holographic UI, multi-reward superfarm and multi-staking system.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "The Nexus Portal",
+    "url": "https://www.thenexusportal.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "injective-dapps",
+    "external": true,
+    "title": "Injective",
+    "logo": "/assets/sections/dapps/injective.png",
+    "shortDescription": "Injective",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Injective",
+    "url": "https://injective.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "yellow-dapps",
+    "external": true,
+    "title": "Yellow Network",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-yellow.png",
+    "shortDescription": "Web3 #blockchain products & services ecosystem | Building next-gen #DeFi experience for exchanges, brokers & traders 🚀",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Layer3 Fintech Ltd.",
+    "url": "https://www.yellow.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "noble-dapps",
+    "external": true,
+    "title": "Noble",
+    "logo": "/assets/sections/dapps/noble.png",
+    "shortDescription": "Noble",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Noble",
+    "url": "https://www.noble.xyz/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "securd-dapps",
+    "external": true,
+    "title": "Securd",
+    "logo": "/assets/sections/dapps/securd.png",
+    "shortDescription": "Securd",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Securd",
+    "url": "https://www.securd.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "strobe-dapps",
+    "external": true,
+    "title": "Strobe",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-strobe.jpg",
+    "shortDescription": "Unified Liquidity Layer on XRPL",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Strobe Finance",
+    "url": "https://strobe.finance/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "anodex-dapps",
+    "external": true,
+    "title": "ANODEX",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-anodex.png",
+    "shortDescription": "A one-stop shop for XRPL's DEX and EVM swaps. On/offramp, trade, provide liquidity, and manage your XRPL account - all in one place.",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Anodos Labs Inc",
+    "url": "https://dex.anodos.finance/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "purplemarkets-dapps",
+    "external": true,
+    "title": "Purplemarkets",
+    "logo": "/assets/sections/dapps/purplemarkets.png",
+    "shortDescription": "Purplemarkets",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Purplemarkets",
+    "url": "https://www.purple-trading.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "falcon-dapps",
+    "external": true,
+    "title": "falcon Finance",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-falcon.png",
+    "shortDescription": "The first universal collateralization infrastructure powering onchain liquidity and yield. $1B+ USDf in circulation.",
+    "categories": [
+      "RWA"
+    ],
+    "author": "Falcon Finance",
+    "url": "https://falcon.finance/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "midas-dapps",
+    "external": true,
+    "title": "MidasRWA",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-midas.jpg",
+    "shortDescription": "Institutional-grade Assets built for the Open Web. ",
+    "categories": [
+      "DeFi",
+      "RWA"
+    ],
+    "author": "MidasRWA",
+    "url": "https://midas.app/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "zns-dapps",
+    "external": true,
+    "title": "Zns",
+    "logo": "/assets/sections/dapps/zns.png",
+    "shortDescription": "Zns",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Zns",
+    "url": "https://www.znsconnect.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "nfts-2me-dapps",
+    "external": true,
+    "title": "NFTs2Me",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nfts-2me.png",
+    "shortDescription": "Make an NFT Collection With ZERO Coding Skills",
+    "categories": [
+      "NFT"
+    ],
+    "author": "NFTs2Me",
+    "url": "https://nfts2me.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "osmosis-dapps",
+    "external": true,
+    "title": "Osmosis",
+    "logo": "/assets/sections/dapps/osmosis.png",
+    "shortDescription": "Osmosis",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Osmosis",
+    "url": "https://www.osmosis.zone/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "stakz-dapps",
+    "external": true,
+    "title": "Stakz",
+    "logo": "/assets/sections/dapps/stakz.png",
+    "shortDescription": "Stakz",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Stakz",
+    "url": "https://stakz.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "ripplebids-dapps",
+    "external": true,
+    "title": "RippleBids",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ripplebids.jpg",
+    "shortDescription": "The next generation marketplace powered by XRPB tokens, enabling seamless trading across multiple blockchain networks",
+    "categories": [
+      "Marketplace"
+    ],
+    "author": "RippleBids",
+    "url": "https://ripplebids.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "rubyscore-dapps",
+    "external": true,
+    "title": "RubyScore",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-rubyscore.jpg",
+    "shortDescription": "Analytics platform for blockchain and wallet, which combines on-chain data with a massive and constantly growing database containing millions of wallet labels.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "RubyScore",
+    "url": "https://rubyscore.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "liquify-dapps",
+    "external": true,
+    "title": "Liquify",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-liquify.jpg",
+    "shortDescription": "P2P Lending & borrowing",
+    "categories": [
+      "DeFi"
+    ],
+    "author": "Liquify",
+    "url": "https://liquify.fi/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "zkcodex-dapps",
+    "external": true,
+    "title": "ZKCODEX",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-zkcodex.jpg",
+    "shortDescription": "Track wallets across  105+ networks, engage on-chain across 125+ networks, and discover airdrops—all in one place!",
+    "categories": [
+      "Tools"
+    ],
+    "author": "XKCODEX",
+    "url": "https://zkcodex.com/xrpl",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "geochain-dapps",
+    "external": true,
+    "title": "GeoChain",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-geochain.png",
+    "shortDescription": "GeoChain is an innovative, onchain marketplace that brings transparency, security, and instant settlement to the geospatial data economy. By leveraging the XRPL EVM Sidechain, GeoChain combines EVM compatibility for smart contracts with the speed, low fees, and reliability of the XRP Ledger.",
+    "categories": [
+      "Marketplace"
+    ],
+    "author": "GeoChain",
+    "url": "https://geo-chain.xyz/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "redgervoir-dapps",
+    "external": true,
+    "title": "Redgervoir",
+    "logo": "/assets/sections/dapps/redgervoir.png",
+    "shortDescription": "Redgervoir",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Redgervoir",
+    "url": "https://redgervoir.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "xrpawz-dapps",
+    "external": true,
+    "title": "XRPawz",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xrpawz.png",
+    "shortDescription": "XRPawz is a community-driven meme token that automatically rewards holders with XRP. Every buy and sell routes a small fee into a smart contract that purchases XRP on the open market and redistributes it to $PAWZ holders—no staking, no claiming, just hold and let the pup fetch.",
+    "categories": [
+      "MEME"
+    ],
+    "author": "XRPawz",
+    "url": "https://xrpawz.com",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "kiedex-dapps",
+    "external": true,
+    "title": "Kiedex",
+    "logo": "/assets/sections/dapps/kiedex.png",
+    "shortDescription": "Kiedex",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Kiedex",
+    "url": "https://kiedex.app/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "warden-dapps",
+    "external": true,
+    "title": "Warden",
+    "logo": "/assets/sections/dapps/warden.png",
+    "shortDescription": "Warden",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Warden",
+    "url": "https://wardenprotocol.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "safe-global-dapps",
+    "external": true,
+    "title": "Safe Global Multisig",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-safe-global.jpg",
+    "shortDescription": "Safe platform offers secure multi-signature wallets.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://safe.xrplevm.org",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "drops-dapps",
+    "external": true,
+    "title": "Drops",
+    "logo": "/assets/sections/dapps/drops.png",
+    "shortDescription": "Drops",
+    "categories": [
+      "dapp"
+    ],
+    "author": "Drops",
+    "url": "https://drops.market/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "humanode-biomapper-dapps",
+    "external": true,
+    "title": "Humanode Biomapper",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-humanodebiomapper.png",
+    "shortDescription": "On-chain private facial recognition tool.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Humanode",
+    "url": "https://mainnet.biomapper.hmnd.app/dashboard",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "zns-bio-dapps",
+    "external": true,
+    "title": "ZNS Bio",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-znsbio.png",
+    "shortDescription": "Claim your web3 page, decentralize your identity.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "ZNS Connect",
+    "url": "https://zns.bio/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "ens-dapps",
+    "external": true,
+    "title": "ens.xrplevm.org",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-ens.png",
+    "shortDescription": "Send XRP on XRPL EVM Mainnet. Supports .xrpl domain resolution via ZNS.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://ens.xrplevm.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "reown-dapp-template-dapps",
+    "external": true,
+    "title": "reown dApp with Social login",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-reown-dapp.png",
+    "shortDescription": "A simple decentralized application (dApp) demonstrating social login integration using Reown AppKit (formerly WalletConnect) for XRPL EVM Testnet with transfer functionality.",
+    "categories": [
+      "Tools"
+    ],
+    "author": "Peersyst",
+    "url": "https://reown-xrpl-dapp.vercel.app/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "dapps"
+  },
+  {
+    "id": "band-protocol-oracles",
+    "external": true,
+    "title": "Band Protocol",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-band-protocol.png",
+    "shortDescription": "Secure, Scalable Cross-Chain Decentralized Oracle - We connect smart contracts to external data and APIs",
+    "categories": [
+      "Oracles"
+    ],
+    "author": "Band Protocol",
+    "url": "https://www.bandprotocol.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "oracles"
+  },
+  {
+    "id": "api3-oracles",
+    "external": true,
+    "title": "Api3",
+    "logo": "/assets/sections/oracles/api3.png",
+    "shortDescription": "Api3",
+    "categories": [
+      "oracle"
+    ],
+    "author": "Api3",
+    "url": "https://api3.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "oracles"
+  },
+  {
+    "id": "goldsky-indexers",
+    "external": true,
+    "title": "GOLDSKY",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-goldsky.png",
+    "shortDescription": "Goldsky is XRPL EVM Sidechain's Realtime Data Platform",
+    "categories": [
+      "Oracles"
+    ],
+    "author": "Goldsky",
+    "url": "https://goldsky.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "indexers"
+  },
+  {
+    "id": "curvegrid-indexers",
+    "external": true,
+    "title": "Curvegrid",
+    "logo": "/assets/sections/indexers/curvegrid.png",
+    "shortDescription": "Curvegrid",
+    "categories": [
+      "indexer"
+    ],
+    "author": "Curvegrid",
+    "url": "https://www.curvegrid.com/multibaas",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "indexers"
+  },
+  {
+    "id": "xao-dao-daos",
+    "external": true,
+    "title": "XAO.DAO",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-xao-dao.jpg",
+    "shortDescription": "XAO.DAO, the first Decentralized Autonomous Organization to represent the community of the XRP Ledger.",
+    "categories": [
+      "DAO"
+    ],
+    "author": "XAO DAO",
+    "url": "https://www.xaodao.io",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "daos"
+  },
+  {
+    "id": "blockscout-explorers",
+    "external": true,
+    "title": "Blockscout",
+    "logo": "/assets/sections/explorers/blockscout.png",
+    "shortDescription": "Blockscout",
+    "categories": [
+      "explorer"
+    ],
+    "author": "Blockscout",
+    "url": "https://explorer.xrplevm.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "xrplevm-eco-explorers",
+    "external": true,
+    "title": "Xrplevm Eco",
+    "logo": "/assets/sections/explorers/xrplevm-eco.png",
+    "shortDescription": "Xrplevm Eco",
+    "categories": [
+      "explorer"
+    ],
+    "author": "Xrplevm Eco",
+    "url": "https://governance.xrplevm.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "axelarscan-explorers",
+    "external": true,
+    "title": "AXELARSCAN",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axelarscan.png",
+    "shortDescription": "Axelarscan is the official explorer for the Axelar network, featuring GMP Search to easily track cross-chain bridge transfers in real time.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Axelar Network",
+    "url": "https://axelarscan.io/gmp/search",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "range-explorers",
+    "external": true,
+    "title": "Range",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-range.png",
+    "shortDescription": "The blockchain security and intelligence platform",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Range",
+    "url": "https://app.range.org/xrpl/general",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "kgnodes-explorers",
+    "external": true,
+    "title": "Kgnodes",
+    "logo": "/assets/sections/explorers/kgnodes.png",
+    "shortDescription": "Kgnodes",
+    "categories": [
+      "explorer"
+    ],
+    "author": "Kgnodes",
+    "url": "https://explorer.kgnodes.xyz/Xrpl-Testnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "valopers-explorers",
+    "external": true,
+    "title": "Valopers",
+    "logo": "/assets/sections/explorers/valopers.png",
+    "shortDescription": "Valopers",
+    "categories": [
+      "explorer"
+    ],
+    "author": "Valopers",
+    "url": "https://testnet.xrplevm.valopers.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "nodestake-explorers",
+    "external": true,
+    "title": "NodeStake",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nodestake.jpg",
+    "shortDescription": "NodeStake provides XRPL EVM testnet endpoints (API, gRPC, EVM) plus an explorer and network tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Explorer",
+      "Tools",
+      "Services"
+    ],
+    "author": "NodeStake",
+    "url": "https://explorer.nodestake.org/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "rpcdot-explorers",
+    "external": true,
+    "title": "Rpcdot",
+    "logo": "/assets/sections/explorers/rpcdot.png",
+    "shortDescription": "Rpcdot",
+    "categories": [
+      "explorer"
+    ],
+    "author": "Rpcdot",
+    "url": "https://explorer.rpcdot.com/xrplevm-testnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "winsnip-explorers",
+    "external": true,
+    "title": "Winsnip Explorer",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-winsnip.jpg",
+    "shortDescription": "XRPL EVM Explorer supporting both EVM and Cosmos; Type-118 and Type-60 transactions.",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "winnode",
+    "url": "https://winscan.winsnip.xyz/xrpl-mainnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "cumulo-explorers",
+    "external": true,
+    "title": "Cumulo",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cumulo.png",
+    "shortDescription": "Validation platform with node guides, snapshots, advanced metrics, and XRPL EVM endpoints.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Tools",
+      "Snapshot",
+      "Content",
+      "Services"
+    ],
+    "author": "Cumulo.pro",
+    "url": "https://cumulo.pro/services/xrplevm_mainnet/search",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "explorers"
+  },
+  {
+    "id": "peersyst-validators",
+    "external": true,
+    "title": "Peersyst",
+    "logo": "/assets/sections/validators/peersyst.png",
+    "shortDescription": "Peersyst",
+    "categories": [
+      "validator"
+    ],
+    "author": "Peersyst",
+    "url": "https://peersyst.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "ripple-validators",
+    "external": true,
+    "title": "Ripple",
+    "logo": "/assets/sections/validators/ripple.png",
+    "shortDescription": "Ripple",
+    "categories": [
+      "validator"
+    ],
+    "author": "Ripple",
+    "url": "https://ripple.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "interchainlabs-validators",
+    "external": true,
+    "title": "Interchainlabs",
+    "logo": "/assets/sections/validators/interchainlabs.png",
+    "shortDescription": "Interchainlabs",
+    "categories": [
+      "validator"
+    ],
+    "author": "Interchainlabs",
+    "url": "https://interchain.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "xrplcommons-validators",
+    "external": true,
+    "title": "Xrplcommons",
+    "logo": "/assets/sections/validators/xrplcommons.png",
+    "shortDescription": "Xrplcommons",
+    "categories": [
+      "validator"
+    ],
+    "author": "Xrplcommons",
+    "url": "https://xrplcommons.org",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "kintsugi-validators",
+    "external": true,
+    "title": "Kintsugi",
+    "logo": "/assets/sections/validators/kintsugi.png",
+    "shortDescription": "Kintsugi",
+    "categories": [
+      "validator"
+    ],
+    "author": "Kintsugi",
+    "url": "https://kintsugi.tech/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "keplr-validators",
+    "external": true,
+    "title": "Keplr",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-keplr.png",
+    "shortDescription": "Introducing Keplr, the fast,simple, secure wallet that plugs you into any blockchains and apps wherever you go. Pioneering its ways in the multichain future from day one.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Keplr",
+    "url": "https://www.keplr.app/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "blockscout-validators",
+    "external": true,
+    "title": "Blockscout",
+    "logo": "/assets/sections/validators/blockscout.png",
+    "shortDescription": "Blockscout",
+    "categories": [
+      "validator"
+    ],
+    "author": "Blockscout",
+    "url": "https://explorer.xrplevm.org/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "bkgeomatics-validators",
+    "external": true,
+    "title": "Bkgeomatics",
+    "logo": "/assets/sections/validators/bkgeomatics.png",
+    "shortDescription": "Bkgeomatics",
+    "categories": [
+      "validator"
+    ],
+    "author": "Bkgeomatics",
+    "url": "https://bkxrplevm.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "sbi-validators",
+    "external": true,
+    "title": "Sbi",
+    "logo": "/assets/sections/validators/sbi.png",
+    "shortDescription": "Sbi",
+    "categories": [
+      "validator"
+    ],
+    "author": "Sbi",
+    "url": "https://defimans.com/en/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "enigma-validators",
+    "external": true,
+    "title": "Enigma",
+    "logo": "/assets/sections/validators/enigma.png",
+    "shortDescription": "Enigma",
+    "categories": [
+      "validator"
+    ],
+    "author": "Enigma",
+    "url": "https://xrp-rpc.enigma-validator.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "flowdesk-validators",
+    "external": true,
+    "title": "Flowdesk",
+    "logo": "/assets/sections/validators/flowdesk.png",
+    "shortDescription": "Flowdesk",
+    "categories": [
+      "validator"
+    ],
+    "author": "Flowdesk",
+    "url": "https://www.flowdesk.co/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "polkachu-validators",
+    "external": true,
+    "title": "Polkachu",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-polkachu.jpg",
+    "shortDescription": "Polkachu provides XRPL EVM testnet infrastructure: endpoints, installation guides, snapshots, seeds, and tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Snapshot",
+      "Tools",
+      "Content",
+      "Services"
+    ],
+    "author": "Polkachu",
+    "url": "https://polkachu.com/testnets/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "purplemarkets-validators",
+    "external": true,
+    "title": "Purplemarkets",
+    "logo": "/assets/sections/validators/purplemarkets.png",
+    "shortDescription": "Purplemarkets",
+    "categories": [
+      "validator"
+    ],
+    "author": "Purplemarkets",
+    "url": "https://www.purple-trading.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "sg1-validators",
+    "external": true,
+    "title": "Sg1",
+    "logo": "/assets/sections/validators/sg1.png",
+    "shortDescription": "Sg1",
+    "categories": [
+      "validator"
+    ],
+    "author": "Sg1",
+    "url": "https://sg-1.online/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "cumulo-validators",
+    "external": true,
+    "title": "Cumulo",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cumulo.png",
+    "shortDescription": "Validation platform with node guides, snapshots, advanced metrics, and XRPL EVM endpoints.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Tools",
+      "Snapshot",
+      "Content",
+      "Services"
+    ],
+    "author": "Cumulo.pro",
+    "url": "https://cumulo.pro/services/xrplevm_mainnet/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "imperator-co-validators",
+    "external": true,
+    "title": "Imperator.co",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-imperator-co.jpg",
+    "shortDescription": "Imperator provides RPC and gRPC endpoints for the XRPL EVM Devnet.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Services"
+    ],
+    "author": "Imperator.co",
+    "url": "https://www.imperator.co/services/chain-services/mainnets/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "kingnodes-validators",
+    "external": true,
+    "title": "Kingnodes",
+    "logo": "/assets/sections/validators/kingnodes.png",
+    "shortDescription": "Kingnodes",
+    "categories": [
+      "validator"
+    ],
+    "author": "Kingnodes",
+    "url": "https://www.kingnodes.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "linkpool-validators",
+    "external": true,
+    "title": "Linkpool",
+    "logo": "/assets/sections/validators/linkpool.png",
+    "shortDescription": "Linkpool",
+    "categories": [
+      "validator"
+    ],
+    "author": "Linkpool",
+    "url": "https://linkpool.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "rhino-validators",
+    "external": true,
+    "title": "Rhino",
+    "logo": "/assets/sections/validators/rhino.png",
+    "shortDescription": "Rhino",
+    "categories": [
+      "validator"
+    ],
+    "author": "Rhino",
+    "url": "https://rhinostake.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "cosmostation-validators",
+    "external": true,
+    "title": "Cosmostation Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cosmostation.png",
+    "shortDescription": "Non-custodial multi-chain cryptocurrency browser extension wallet.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://www.cosmostation.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "cryptosurvivor-validators",
+    "external": true,
+    "title": "Cryptosurvivor",
+    "logo": "/assets/sections/validators/cryptosurvivor.png",
+    "shortDescription": "Cryptosurvivor",
+    "categories": [
+      "validator"
+    ],
+    "author": "Cryptosurvivor",
+    "url": "https://governance.xrplevm.org/xrplevm/validators/ethmvaloper149nrrm3qzjl9mg5av9gnle9qrmzrrsxysk6p82",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "cryptocrew-validators",
+    "external": true,
+    "title": "Cryptocrew",
+    "logo": "/assets/sections/validators/cryptocrew.png",
+    "shortDescription": "Cryptocrew",
+    "categories": [
+      "validator"
+    ],
+    "author": "Cryptocrew",
+    "url": "https://ccvalidators.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "range-validators",
+    "external": true,
+    "title": "Range",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-range.png",
+    "shortDescription": "The blockchain security and intelligence platform",
+    "categories": [
+      "Explorer"
+    ],
+    "author": "Range",
+    "url": "https://app.range.org/xrpl/general",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "atlas-staking-validators",
+    "external": true,
+    "title": "Atlas Staking",
+    "logo": "/assets/sections/validators/atlas-staking.png",
+    "shortDescription": "Atlas Staking",
+    "categories": [
+      "validator"
+    ],
+    "author": "Atlas Staking",
+    "url": "https://app.atlasstaking.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "itrocket-validators",
+    "external": true,
+    "title": "Itrocket",
+    "logo": "/assets/sections/validators/itrocket.png",
+    "shortDescription": "Itrocket",
+    "categories": [
+      "validator"
+    ],
+    "author": "Itrocket",
+    "url": "https://itrocket.net/services/testnet/xrplevm/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "validators"
+  },
+  {
+    "id": "peersyst-core",
+    "external": true,
+    "title": "Peersyst",
+    "logo": "/assets/sections/core/peersyst.png",
+    "shortDescription": "Peersyst",
+    "categories": [
+      "core"
+    ],
+    "author": "Peersyst",
+    "url": "https://peersyst.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "ripple-core",
+    "external": true,
+    "title": "Ripple",
+    "logo": "/assets/sections/core/ripple.png",
+    "shortDescription": "Ripple",
+    "categories": [
+      "core"
+    ],
+    "author": "Ripple",
+    "url": "https://ripple.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "cosmos-core",
+    "external": true,
+    "title": "Cosmos",
+    "logo": "/assets/sections/core/cosmos.png",
+    "shortDescription": "Cosmos",
+    "categories": [
+      "core"
+    ],
+    "author": "Cosmos",
+    "url": "https://cosmos.network/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "axelar-core",
+    "external": true,
+    "title": "AXELAR",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-axelar.png",
+    "shortDescription": "Axelar is the Web3 interoperability platform for the xrplevm and 69+ chains. An open stack to connect all blockchains. A single click to use and build everywhere.",
+    "categories": [
+      "Bridge"
+    ],
+    "author": "Axelar Network",
+    "url": "https://www.axelar.network/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "commonprefix-core",
+    "external": true,
+    "title": "Commonprefix",
+    "logo": "/assets/sections/core/commonprefix.png",
+    "shortDescription": "Commonprefix",
+    "categories": [
+      "core"
+    ],
+    "author": "Commonprefix",
+    "url": "https://www.commonprefix.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "xrplcommons-core",
+    "external": true,
+    "title": "Xrplcommons",
+    "logo": "/assets/sections/core/xrplcommons.png",
+    "shortDescription": "Xrplcommons",
+    "categories": [
+      "core"
+    ],
+    "author": "Xrplcommons",
+    "url": "https://xrplcommons.org",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "core"
+  },
+  {
+    "id": "bishopfox-auditors",
+    "external": true,
+    "title": "Bishopfox",
+    "logo": "/assets/sections/auditors/bishopfox.png",
+    "shortDescription": "Bishopfox",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Bishopfox",
+    "url": "https://ripple.com/reports/Ripple-Side-Chains-Assessment-Report-XRPL.pdf",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "certik-auditors",
+    "external": true,
+    "title": "Certik",
+    "logo": "/assets/sections/auditors/certik.png",
+    "shortDescription": "Certik",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Certik",
+    "url": "https://drive.google.com/file/d/1X8wCfIXolZMqQ4KfRl03vpgPx2v6GB8c/view",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "fyeo-auditors",
+    "external": true,
+    "title": "Fyeo",
+    "logo": "/assets/sections/auditors/fyeo.png",
+    "shortDescription": "Fyeo",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Fyeo",
+    "url": "https://drive.google.com/file/d/16R3XBCQ-FhFEQQevwRNlnUUE0e_GsuSe/view",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "nccgroup1-auditors",
+    "external": true,
+    "title": "Nccgroup1",
+    "logo": "/assets/sections/auditors/nccgroup1.png",
+    "shortDescription": "Nccgroup1",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Nccgroup1",
+    "url": "https://drive.google.com/file/d/1CT-TObFviDNYyvXQ2RqXWqom_d7G07-6/view",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "nccgroup2-auditors",
+    "external": true,
+    "title": "Nccgroup2",
+    "logo": "/assets/sections/auditors/nccgroup2.png",
+    "shortDescription": "Nccgroup2",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Nccgroup2",
+    "url": "https://drive.google.com/file/d/1rtCe9etAZAOn61AIo2m6-ExcKUHK5THP/view",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "nccgroup3-auditors",
+    "external": true,
+    "title": "Nccgroup3",
+    "logo": "/assets/sections/auditors/nccgroup3.png",
+    "shortDescription": "Nccgroup3",
+    "categories": [
+      "auditor"
+    ],
+    "author": "Nccgroup3",
+    "url": "https://drive.google.com/file/d/14fhn4yYoTpYsdfXLjOfdMPiu2TmsWb2a/view",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "auditors"
+  },
+  {
+    "id": "polkachu-providers",
+    "external": true,
+    "title": "Polkachu",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-polkachu.jpg",
+    "shortDescription": "Polkachu provides XRPL EVM testnet infrastructure: endpoints, installation guides, snapshots, seeds, and tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Snapshot",
+      "Tools",
+      "Content",
+      "Services"
+    ],
+    "author": "Polkachu",
+    "url": "https://polkachu.com/testnets/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "enigma-providers",
+    "external": true,
+    "title": "Enigma",
+    "logo": "/assets/sections/providers/enigma.png",
+    "shortDescription": "Enigma",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Enigma",
+    "url": "https://xrp-rpc.enigma-validator.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "cumulo-providers",
+    "external": true,
+    "title": "Cumulo",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cumulo.png",
+    "shortDescription": "Validation platform with node guides, snapshots, advanced metrics, and XRPL EVM endpoints.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Tools",
+      "Snapshot",
+      "Content",
+      "Services"
+    ],
+    "author": "Cumulo.pro",
+    "url": "https://cumulo.pro/services/xrplevm_mainnet/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "imperator-co-providers",
+    "external": true,
+    "title": "Imperator.co",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-imperator-co.jpg",
+    "shortDescription": "Imperator provides RPC and gRPC endpoints for the XRPL EVM Devnet.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Services"
+    ],
+    "author": "Imperator.co",
+    "url": "https://www.imperator.co/services/chain-services/mainnets/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "itrocket-providers",
+    "external": true,
+    "title": "Itrocket",
+    "logo": "/assets/sections/providers/itrocket.png",
+    "shortDescription": "Itrocket",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Itrocket",
+    "url": "https://itrocket.net/services/testnet/xrplevm/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "blockitize-providers",
+    "external": true,
+    "title": "Blockitize",
+    "logo": "/assets/sections/providers/blockitize.png",
+    "shortDescription": "Blockitize",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Blockitize",
+    "url": "https://services.blockitize.com/?project=xrpl-evm",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "cosmostation-providers",
+    "external": true,
+    "title": "Cosmostation Wallet",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-cosmostation.png",
+    "shortDescription": "Non-custodial multi-chain cryptocurrency browser extension wallet.",
+    "categories": [
+      "Wallet"
+    ],
+    "author": "Wallet Connect",
+    "url": "https://www.cosmostation.io/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "endorphinestake-providers",
+    "external": true,
+    "title": "Endorphinestake",
+    "logo": "/assets/sections/providers/endorphinestake.png",
+    "shortDescription": "Endorphinestake",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Endorphinestake",
+    "url": "https://endorphinestake.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "unitynodes-providers",
+    "external": true,
+    "title": "Unitynodes",
+    "logo": "/assets/sections/providers/unitynodes.png",
+    "shortDescription": "Unitynodes",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Unitynodes",
+    "url": "https://unitynodes.gitbook.io/unity-nodes/testnet-network/xrpl-evm",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "ibs-providers",
+    "external": true,
+    "title": "Ibs",
+    "logo": "/assets/sections/providers/ibs.png",
+    "shortDescription": "Ibs",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Ibs",
+    "url": "https://ibs.team/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "bitszn-providers",
+    "external": true,
+    "title": "Bitszn",
+    "logo": "/assets/sections/providers/bitszn.png",
+    "shortDescription": "Bitszn",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Bitszn",
+    "url": "https://bitszn.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "dsrv-providers",
+    "external": true,
+    "title": "Dsrv",
+    "logo": "/assets/sections/providers/dsrv.png",
+    "shortDescription": "Dsrv",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Dsrv",
+    "url": "https://dsrv.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "posthuman-providers",
+    "external": true,
+    "title": "Posthuman",
+    "logo": "/assets/sections/providers/posthuman.png",
+    "shortDescription": "Posthuman",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Posthuman",
+    "url": "https://posthuman.digital/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "dongqn-providers",
+    "external": true,
+    "title": "Dongqn",
+    "logo": "/assets/sections/providers/dongqn.png",
+    "shortDescription": "Dongqn",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Dongqn",
+    "url": "https://services.dongqn.com/xrpl-evm-testnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "kgnodes-providers",
+    "external": true,
+    "title": "Kgnodes",
+    "logo": "/assets/sections/providers/kgnodes.png",
+    "shortDescription": "Kgnodes",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Kgnodes",
+    "url": "https://explorer.kgnodes.xyz/Xrpl-Testnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "nodestake-providers",
+    "external": true,
+    "title": "NodeStake",
+    "logo": "https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-dapp-nodestake.jpg",
+    "shortDescription": "NodeStake provides XRPL EVM testnet endpoints (API, gRPC, EVM) plus an explorer and network tools.",
+    "categories": [
+      "API",
+      "gRPC",
+      "Explorer",
+      "Tools",
+      "Services"
+    ],
+    "author": "NodeStake",
+    "url": "https://explorer.nodestake.org/xrp",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "rpcdot-providers",
+    "external": true,
+    "title": "Rpcdot",
+    "logo": "/assets/sections/providers/rpcdot.png",
+    "shortDescription": "Rpcdot",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Rpcdot",
+    "url": "https://explorer.rpcdot.com/xrplevm-testnet",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "silknodes-providers",
+    "external": true,
+    "title": "Silknodes",
+    "logo": "/assets/sections/providers/silknodes.png",
+    "shortDescription": "Silknodes",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Silknodes",
+    "url": "http://silknodes.io/testnets/xrplevm",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "validator247-providers",
+    "external": true,
+    "title": "Validator247",
+    "logo": "/assets/sections/providers/validator247.png",
+    "shortDescription": "Validator247",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Validator247",
+    "url": "https://validator247.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "mars-providers",
+    "external": true,
+    "title": "Mars",
+    "logo": "/assets/sections/providers/mars.png",
+    "shortDescription": "Mars",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Mars",
+    "url": "https://marsgate.xyz/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
+  },
+  {
+    "id": "atlas-staking-providers",
+    "external": true,
+    "title": "Atlas Staking",
+    "logo": "/assets/sections/providers/atlas-staking.png",
+    "shortDescription": "Atlas Staking",
+    "categories": [
+      "infrastructure"
+    ],
+    "author": "Atlas Staking",
+    "url": "https://app.atlasstaking.com/",
+    "surfaces": [
+      "ecosystem-map"
+    ],
+    "ecosystemSection": "providers"
   }
 ]
