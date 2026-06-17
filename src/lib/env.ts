@@ -27,10 +27,14 @@ const EnvSchema = z.object({
         .int()
         .positive()
         .default(500_000),
-    // audit (phase-7c) — optional in env validation; the audit caller asserts
-    // its presence at the moment the Anthropic client is constructed so that
-    // unrelated handlers and tests don't fail when the key is absent.
-    ANTHROPIC_API_KEY: z.string().min(1).optional(),
+    // Airtable staging — submissions land here as Pending rows (logo as an
+    // attachment) until a reviewer approves them in `/explorer-admin`. The
+    // base/table default to the known submission queue so local read-only
+    // flows work; the PAT has no default and is asserted by the Airtable
+    // client at call time so unrelated handlers/tests don't trip validation.
+    AIRTABLE_API_KEY: z.string().min(1).optional(),
+    AIRTABLE_BASE_ID: z.string().min(1).default("appDFL9N9MDWj0Ywd"),
+    AIRTABLE_TABLE_ID: z.string().min(1).default("tblSXGty3mcKj7F62"),
     // S3 storage for the canonical `explorer-apps.json` and dApp logos.
     // Region/bucket/key carry safe defaults so local dev (read-only flows)
     // works without configuration. Access keys are intentionally optional

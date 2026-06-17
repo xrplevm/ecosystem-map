@@ -84,12 +84,6 @@ export async function postMessage(args: {
     blocks: Array<Record<string, unknown>>;
     text: string;
     threadTs?: string;
-    /**
-     * Optional structured metadata attached to the message. Used by the
-     * `/explorer-admin` modal (sub-task phase-7e) to filter pending
-     * submissions out of `conversations.history` without a sidecar store.
-     */
-    metadata?: { event_type: string; event_payload: Record<string, unknown> };
 }): Promise<PostMessageResponse> {
     const body: Record<string, unknown> = {
         channel: args.channel,
@@ -98,9 +92,6 @@ export async function postMessage(args: {
     };
     if (args.threadTs !== undefined) {
         body.thread_ts = args.threadTs;
-    }
-    if (args.metadata !== undefined) {
-        body.metadata = args.metadata;
     }
     const data = await slackJsonCall<PostMessageResponse>("chat.postMessage", args.token, body);
     return { ts: data.ts, channel: data.channel };

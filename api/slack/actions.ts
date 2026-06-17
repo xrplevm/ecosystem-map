@@ -1,8 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { auditSubmission, formatAuditForSlack } from "../../src/lib/audit";
+import {
+    downloadAttachment,
+    setStatus,
+    STATUS,
+} from "../../src/lib/airtable";
 import { loadEnv } from "../../src/lib/env";
 import { EnvValidationError, SlackVerifyError } from "../../src/lib/errors";
+import { LOGO_CONTENT_TYPE, normalizeLogo } from "../../src/lib/logo-image";
 import {
     assertUniqueIds as assertUniqueIdsTyped,
     DuplicateIdError,
@@ -10,10 +15,11 @@ import {
     explorerAppsArraySchema,
     safeParseExplorerApp,
 } from "../../src/lib/schemas/explorer-app";
-import type { ExplorerApp } from "../../src/lib/explorer-apps-types";
+import type { ExplorerApp, ExplorerAppSurface } from "../../src/lib/explorer-apps-types";
 import {
     EtagRetryExhaustedError,
     getJson,
+    putLogo,
     withEtagRetry,
 } from "../../src/lib/s3-client";
 import { postMessage, verifySlackSignature } from "../../src/lib/slack";
@@ -24,12 +30,17 @@ import {
     buildSeedModalView,
     CALLBACK_ID,
     computeSeedDiff,
-    markSubmissionApproved,
+    postApprovalArtifacts,
     postBatchSummary,
     readPendingSubmissions,
     type AdminMode,
+    type ApprovalArtifact,
     type BatchSummary,
 } from "../../src/lib/slack-batch";
+
+// Placeholder used to pre-flight-validate a candidate before the S3 logo
+// upload, so an invalid row never leaves an orphan object behind.
+const PREFLIGHT_LOGO_URL = "https://airtable.invalid/pending-logo.png";
 
 /**
  * POST /api/slack/actions — receives Slack interactive payloads:
@@ -67,11 +78,6 @@ function assertUniqueIds(apps: ReadonlyArray<{ id: string }>): void {
 }
 
 type SlackResponseBody = Record<string, unknown> | "";
-
-
-
-type AuditableField = "url" | "site" | "github";
-const AUDITABLE_FIELDS: AuditableField[] = ["url", "site", "github"];
 
 interface BlockActionsPayload {
     type: "block_actions";
@@ -219,10 +225,7 @@ async function routeModeSelect(args: {
     mode: AdminMode;
 }): Promise<void> {
     if (args.mode === "pending") {
-        const submissions = await readPendingSubmissions({
-            token: args.env.SLACK_BOT_TOKEN,
-            channel: args.env.SLACK_APPROVAL_CHANNEL,
-        });
+        const submissions = await readPendingSubmissions();
         await updateView({
             token: args.env.SLACK_BOT_TOKEN,
             viewId: args.viewId,
@@ -257,7 +260,7 @@ async function handleViewSubmission(args: {
         return modalError("Modal metadata corrupted — please re-open `/explorer-admin`.");
     }
     if (meta.mode === "pending") {
-        return await handleApprove({ env: args.env, payload: args.payload, meta });
+        return await handlePendingDecision({ env: args.env, payload: args.payload });
     }
     if (meta.mode === "existing") {
         return await handleEditExisting({ env: args.env, payload: args.payload });
@@ -269,103 +272,204 @@ async function handleViewSubmission(args: {
 }
 
 // ---------------------------------------------------------------------------
-// pending → approve batch
+// pending → approve / reject batch (Airtable-staged)
 // ---------------------------------------------------------------------------
 
-async function handleApprove(args: {
+interface ApprovedRecord {
+    recordId: string;
+    entry: ExplorerApp;
+    logoUrl: string;
+    surfaces: ExplorerAppSurface[];
+}
+
+/** Map a chosen surface set to a summary bucket key. */
+function surfaceBucket(surfaces: ExplorerAppSurface[]): "explorer" | "map" | "both" {
+    const hasExplorer = surfaces.includes("explorer-apps");
+    const hasMap = surfaces.includes("ecosystem-map");
+    if (hasExplorer && hasMap) return "both";
+    return hasMap ? "map" : "explorer";
+}
+
+async function handlePendingDecision(args: {
     env: ReturnType<typeof loadEnv>;
     payload: ViewSubmissionPayload;
-    meta: PrivateMetadata;
 }): Promise<SlackResponseBody | undefined> {
-    const selectedTs = readSelectedOptions(args.payload, "pending_selection", "selected");
-    if (selectedTs.length === 0) {
-        return modalError("Nothing selected — pick at least one entry to approve.");
+    // Each pending row may be checked under exactly one surface-target group
+    // (or Reject). Build recordId → chosen surfaces, refusing any row that
+    // appears in more than one group.
+    const groups: Array<{ block: string; ids: string[]; surfaces?: ExplorerAppSurface[] }> = [
+        { block: "pending_approve_explorer", ids: readSelectedOptions(args.payload, "pending_approve_explorer", "selected"), surfaces: ["explorer-apps"] },
+        { block: "pending_approve_map", ids: readSelectedOptions(args.payload, "pending_approve_map", "selected"), surfaces: ["ecosystem-map"] },
+        { block: "pending_approve_both", ids: readSelectedOptions(args.payload, "pending_approve_both", "selected"), surfaces: ["explorer-apps", "ecosystem-map"] },
+        { block: "pending_reject", ids: readSelectedOptions(args.payload, "pending_reject", "selected") },
+    ];
+
+    const seen = new Set<string>();
+    const duplicates = new Set<string>();
+    for (const g of groups) {
+        for (const id of g.ids) {
+            if (seen.has(id)) duplicates.add(id);
+            seen.add(id);
+        }
+    }
+    if (seen.size === 0) {
+        return modalError("Nothing selected — check at least one row under a surface group or Reject.");
+    }
+    if (duplicates.size > 0) {
+        return modalErrorOnBlock(
+            "pending_reject",
+            `${duplicates.size} row(s) are checked in more than one group — each row can target only one.`,
+        );
     }
 
-    // Re-read pending submissions (rather than trusting just the ts list
-    // baked into private_metadata) so we get the freshest payloads.
-    const pending = await readPendingSubmissions({
-        token: args.env.SLACK_BOT_TOKEN,
-        channel: args.env.SLACK_APPROVAL_CHANNEL,
-    });
-    const byTs = new Map(pending.map((p) => [p.ts, p]));
+    const approveTargets = new Map<string, ExplorerAppSurface[]>();
+    for (const g of groups) {
+        if (g.surfaces === undefined) continue;
+        for (const id of g.ids) approveTargets.set(id, g.surfaces);
+    }
+    const rejectIds = groups.find((g) => g.block === "pending_reject")!.ids;
 
-    const summary: BatchSummary = { approved: 0, skipped: [], errors: [] };
-    const validEntries: ExplorerApp[] = [];
-    const validTs: string[] = [];
+    // Re-read from Airtable so we act on the freshest rows (and fresh, short-
+    // lived attachment URLs) rather than trusting the modal's stale list.
+    const pending = await readPendingSubmissions();
+    const byRecord = new Map(pending.map((p) => [p.recordId, p]));
 
-    for (const ts of selectedTs) {
-        const sub = byTs.get(ts);
+    const summary: BatchSummary = {
+        approved: 0, approvedExplorer: 0, approvedMap: 0, approvedBoth: 0,
+        rejected: 0, skipped: [], errors: [],
+    };
+
+    // ---- approvals: build entry for the chosen surfaces → S3 ----
+    const approvedRecords: ApprovedRecord[] = [];
+    const logoArtifacts: ApprovalArtifact[] = [];
+
+    for (const [recordId, surfaces] of Array.from(approveTargets)) {
+        const sub = byRecord.get(recordId);
         if (sub === undefined) {
-            summary.skipped.push({ ts, reason: "submission no longer pending (resolved or expired)" });
+            summary.skipped.push({ recordId, reason: "no longer pending (resolved or removed)" });
             continue;
         }
-        const parsed = safeParseExplorerApp(sub.payload);
-        if (!parsed.ok) {
-            summary.skipped.push({ ts, id: tryReadId(sub.payload), reason: `validation: ${parsed.error}` });
+        // Apply the chosen surfaces; drop ecosystemSection for dApps-only
+        // targets (it's meaningless there and only required for the map).
+        const draft: Record<string, unknown> = { ...sub.candidate, surfaces };
+        if (!surfaces.includes("ecosystem-map")) delete draft.ecosystemSection;
+
+        // Pre-flight with a placeholder logo so an invalid row is rejected
+        // BEFORE we ever write its logo to S3.
+        const pre = safeParseExplorerApp({ ...draft, logo: PREFLIGHT_LOGO_URL });
+        if (!pre.ok) {
+            summary.skipped.push({ recordId, id: sub.candidate.id, reason: `validation: ${pre.error}` });
             continue;
         }
-        validEntries.push(parsed.value);
-        validTs.push(ts);
+        if (sub.logoUrl === undefined) {
+            summary.skipped.push({ recordId, id: sub.candidate.id, reason: "missing logo attachment" });
+            continue;
+        }
+        try {
+            const raw = await downloadAttachment(sub.logoUrl);
+            const normalized = await normalizeLogo(raw);
+            const key = `explorer-dapp-${sub.candidate.id}.png`;
+            const { url } = await putLogo(key, normalized, LOGO_CONTENT_TYPE);
+            const parsed = explorerAppSchema.safeParse({ ...draft, logo: url });
+            if (!parsed.success) {
+                summary.skipped.push({ recordId, id: sub.candidate.id, reason: "post-upload validation failed" });
+                continue;
+            }
+            approvedRecords.push({ recordId, entry: parsed.data, logoUrl: url, surfaces });
+            logoArtifacts.push({ filename: key, bytes: normalized, title: key });
+        } catch (err) {
+            summary.errors.push({ recordId, id: sub.candidate.id, reason: describeForLog(err) });
+        }
     }
 
-    if (validEntries.length === 0) {
-        await postBatchSummary({
-            token: args.env.SLACK_BOT_TOKEN,
-            channel: args.env.SLACK_APPROVAL_CHANNEL,
-            summary,
-        });
-        return {};
-    }
-
-    try {
-        await withEtagRetry(async ({ data }) => {
-            const existingIds = new Set(data.map((e) => e.id));
-            const merged = [...data];
-            for (const entry of validEntries) {
-                if (existingIds.has(entry.id)) {
-                    // Replace in-place (re-approval / late edit semantics).
-                    const idx = merged.findIndex((e) => e.id === entry.id);
-                    merged[idx] = entry;
-                } else {
-                    merged.push(entry);
+    let registryWritten = false;
+    if (approvedRecords.length > 0) {
+        try {
+            await withEtagRetry(async ({ data }) => {
+                const existingIds = new Set(data.map((e) => e.id));
+                const merged = [...data];
+                for (const { entry } of approvedRecords) {
+                    if (existingIds.has(entry.id)) {
+                        const idx = merged.findIndex((e) => e.id === entry.id);
+                        merged[idx] = entry;
+                    } else {
+                        merged.push(entry);
+                        existingIds.add(entry.id);
+                    }
                 }
+                assertUniqueIds(merged);
+                return { data: merged };
+            });
+            registryWritten = true;
+        } catch (err) {
+            const reason =
+                err instanceof EtagRetryExhaustedError
+                    ? "S3 ETag conflict (concurrent writers) — retry later"
+                    : err instanceof DuplicateIdError
+                        ? `duplicate ids: ${err.duplicates.join(", ")}`
+                        : describeForLog(err);
+            for (const { recordId, entry } of approvedRecords) {
+                summary.errors.push({ recordId, id: entry.id, reason });
             }
-            assertUniqueIds(merged);
-            return { data: merged };
-        });
-        summary.approved = validEntries.length;
-        // Reactions are best-effort — a successful S3 write is the canonical
-        // truth; a missed reaction just means the row stays "visible" in the
-        // next /explorer-admin pending view, which is recoverable.
-        for (const ts of validTs) {
-            try {
-                await markSubmissionApproved({
-                    token: args.env.SLACK_BOT_TOKEN,
-                    channel: args.env.SLACK_APPROVAL_CHANNEL,
-                    ts,
-                });
-            } catch (err) {
-                console.warn("[slack/actions] reactions.add failed", ts, describeForLog(err));
-            }
-        }
-    } catch (err) {
-        const reason =
-            err instanceof EtagRetryExhaustedError
-                ? "S3 ETag conflict (concurrent writers) — retry later"
-                : err instanceof DuplicateIdError
-                    ? `duplicate ids: ${err.duplicates.join(", ")}`
-                    : describeForLog(err);
-        for (const ts of validTs) {
-            summary.errors.push({ ts, id: byTs.get(ts)?.payload.id, reason });
         }
     }
 
-    await postBatchSummary({
+    // Mark approved rows in Airtable only after the registry write landed.
+    if (registryWritten) {
+        for (const { recordId, entry, logoUrl, surfaces } of approvedRecords) {
+            try {
+                await setStatus(recordId, STATUS.approved, { registryId: entry.id, logoUrl });
+                summary.approved += 1;
+                const bucket = surfaceBucket(surfaces);
+                if (bucket === "explorer") summary.approvedExplorer += 1;
+                else if (bucket === "map") summary.approvedMap += 1;
+                else summary.approvedBoth += 1;
+            } catch (err) {
+                summary.errors.push({
+                    recordId,
+                    id: entry.id,
+                    reason: `published to registry but Airtable status update failed: ${describeForLog(err)}`,
+                });
+            }
+        }
+    }
+
+    // ---- rejections ----
+    for (const recordId of rejectIds) {
+        const sub = byRecord.get(recordId);
+        try {
+            await setStatus(recordId, STATUS.rejected);
+            summary.rejected += 1;
+        } catch (err) {
+            summary.errors.push({ recordId, id: sub?.candidate.id, reason: `reject failed: ${describeForLog(err)}` });
+        }
+    }
+
+    // ---- summary + approval artifacts (threaded under the summary) ----
+    const summaryTs = await postBatchSummary({
         token: args.env.SLACK_BOT_TOKEN,
         channel: args.env.SLACK_APPROVAL_CHANNEL,
         summary,
     });
+
+    if (registryWritten && logoArtifacts.length > 0) {
+        try {
+            const { data } = await getJson({ bypassCache: true });
+            const jsonArtifact: ApprovalArtifact = {
+                filename: "explorer-apps.json",
+                bytes: Buffer.from(JSON.stringify(data, null, 4) + "\n", "utf8"),
+                title: "explorer-apps.json",
+            };
+            await postApprovalArtifacts({
+                token: args.env.SLACK_BOT_TOKEN,
+                channel: args.env.SLACK_APPROVAL_CHANNEL,
+                threadTs: summaryTs,
+                files: [jsonArtifact, ...logoArtifacts],
+            });
+        } catch (err) {
+            console.warn("[slack/actions] postApprovalArtifacts failed", describeForLog(err));
+        }
+    }
     return {};
 }
 
@@ -420,9 +524,6 @@ async function handleEditExisting(args: {
         return modalError("No fields filled — nothing to edit. Check Delete to remove the entry instead.");
     }
 
-    let before: ExplorerApp | undefined;
-    let after: ExplorerApp | undefined;
-
     try {
         await withEtagRetry(async ({ data }) => {
             const idx = data.findIndex((e) => e.id === id);
@@ -441,8 +542,6 @@ async function handleEditExisting(args: {
                 const detail = parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).join("; ");
                 throw new SlackBatchValidationError(`Invalid edit: ${detail}`);
             }
-            before = current;
-            after = parsed.data;
             const next = data.slice();
             next[idx] = parsed.data;
             assertUniqueIds(next);
@@ -455,52 +554,17 @@ async function handleEditExisting(args: {
         throw err;
     }
 
-    if (before !== undefined && after !== undefined && touchesAuditableField(before, after)) {
-        // Best-effort — auditSubmission never throws (returns 'warn' on
-        // failure) but we wrap defensively so a Slack post failure can't
-        // bubble out of the success path.
-        try {
-            const verdict = await auditSubmission({
-                title: after.title,
-                url: after.url,
-                site: after.site,
-                github: after.github,
-                shortDescription: after.shortDescription,
-                description: after.description,
-                categories: after.categories,
-                author: after.author,
-            });
-            const formatted = formatAuditForSlack(verdict);
-            await postMessage({
-                token: args.env.SLACK_BOT_TOKEN,
-                channel: args.env.SLACK_APPROVAL_CHANNEL,
-                blocks: [
-                    {
-                        type: "section",
-                        text: {
-                            type: "mrkdwn",
-                            text: `:pencil2: Edit on \`${id}\` by <@${args.payload.user.id}> touched ${listChangedAuditFields(before, after)}.\n${formatted.mrkdwn}`,
-                        },
-                    },
-                ],
-                text: `Edit audit: ${id}`,
-            });
-        } catch (err) {
-            console.warn("[slack/actions] audit/post failed", describeForLog(err));
-        }
-    } else {
-        await postMessage({
-            token: args.env.SLACK_BOT_TOKEN,
-            channel: args.env.SLACK_APPROVAL_CHANNEL,
-            blocks: [
-                {
-                    type: "section",
-                    text: { type: "mrkdwn", text: `:pencil2: Edited entry \`${id}\` by <@${args.payload.user.id}>` },
-                },
-            ],
-            text: `Edited ${id}`,
-        });
-    }
+    await postMessage({
+        token: args.env.SLACK_BOT_TOKEN,
+        channel: args.env.SLACK_APPROVAL_CHANNEL,
+        blocks: [
+            {
+                type: "section",
+                text: { type: "mrkdwn", text: `:pencil2: Edited entry \`${id}\` by <@${args.payload.user.id}>` },
+            },
+        ],
+        text: `Edited ${id}`,
+    });
     return {};
 }
 
@@ -509,16 +573,6 @@ class SlackBatchValidationError extends Error {
         super(message);
         this.name = "SlackBatchValidationError";
     }
-}
-
-function touchesAuditableField(before: ExplorerApp, after: ExplorerApp): boolean {
-    return AUDITABLE_FIELDS.some((f) => (before[f] ?? "") !== (after[f] ?? ""));
-}
-
-function listChangedAuditFields(before: ExplorerApp, after: ExplorerApp): string {
-    return AUDITABLE_FIELDS.filter((f) => (before[f] ?? "") !== (after[f] ?? ""))
-        .map((f) => `\`${f}\``)
-        .join(", ");
 }
 
 function collectPatch(payload: ViewSubmissionPayload): Partial<ExplorerApp> {
@@ -723,7 +777,7 @@ async function applySeedMigration(args: {
 
 interface PrivateMetadata {
     mode: AdminMode;
-    tsList?: string[];
+    recordList?: string[];
     /** Seed flow: which step we're on. Absent or "input" = phase 1; "confirm" = phase 2. */
     phase?: "input" | "confirm";
     /** Seed flow phase-2: the validated+normalised seed array, JSON-stringified. */
@@ -738,8 +792,8 @@ function parsePrivateMetadata(raw: string): PrivateMetadata | null {
         const mode = parsed.mode;
         if (mode !== "pending" && mode !== "existing" && mode !== "seed") return null;
         const out: PrivateMetadata = { mode };
-        if (Array.isArray(parsed.tsList)) {
-            out.tsList = parsed.tsList.filter((t): t is string => typeof t === "string");
+        if (Array.isArray(parsed.recordList)) {
+            out.recordList = parsed.recordList.filter((t): t is string => typeof t === "string");
         }
         if (parsed.phase === "input" || parsed.phase === "confirm") out.phase = parsed.phase;
         if (typeof parsed.seedJson === "string") out.seedJson = parsed.seedJson;
@@ -758,14 +812,6 @@ function readSelectedOptions(payload: ViewSubmissionPayload, blockId: string, ac
     const opts = payload.view.state.values[blockId]?.[actionId]?.selected_options;
     if (opts === undefined) return [];
     return opts.map((o) => o.value);
-}
-
-function tryReadId(payload: unknown): string | undefined {
-    if (payload !== null && typeof payload === "object" && "id" in payload) {
-        const id = (payload as { id: unknown }).id;
-        if (typeof id === "string") return id;
-    }
-    return undefined;
 }
 
 // ---------------------------------------------------------------------------

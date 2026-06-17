@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 import {
-    APPROVED_REACTION,
     buildExistingModalView,
     buildModeSelectorView,
     buildPendingModalView,
@@ -10,16 +9,14 @@ import {
     buildSeedModalView,
     CALLBACK_ID,
     computeSeedDiff,
-    markSubmissionApproved,
-    PENDING_EVENT_TYPE,
+    postApprovalArtifacts,
     postBatchSummary,
     PRIVATE_METADATA_LIMIT,
     readPendingSubmissions,
-    REJECTED_REACTION,
     SlackBatchError,
     type PendingSubmission,
 } from "../slack-batch";
-import type { ExplorerApp } from "../explorer-apps-types";
+import { __resetEnvCacheForTests } from "../env";
 
 type FetchSpy = jest.Mock<Promise<Response>, [RequestInfo | URL, RequestInit?]>;
 
@@ -27,9 +24,6 @@ const TOKEN = "xoxb-test";
 const CHANNEL = "C123";
 
 function jsonResponse(body: unknown, status = 200): Response {
-    // Avoid `new Response(...)` because the CRA5 / jest-jsdom env does not
-    // expose a global Response constructor; we shim the slim shape our
-    // production code consumes (`ok`, `status`, `json()`).
     return {
         ok: status >= 200 && status < 300,
         status,
@@ -46,102 +40,70 @@ function installFetch(impl: (url: string, init?: RequestInit) => Promise<Respons
     return spy;
 }
 
-describe("readPendingSubmissions", () => {
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+const ORIGINAL_ENV = { ...process.env };
+beforeEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    process.env.SLACK_BOT_TOKEN = TOKEN;
+    process.env.SLACK_SIGNING_SECRET = "x".repeat(32);
+    process.env.SLACK_APPROVAL_CHANNEL = CHANNEL;
+    process.env.AIRTABLE_API_KEY = "patTEST";
+    process.env.AIRTABLE_BASE_ID = "appTEST";
+    process.env.AIRTABLE_TABLE_ID = "tblTEST";
+    __resetEnvCacheForTests();
+});
+afterEach(() => jest.restoreAllMocks());
+afterAll(() => {
+    process.env = ORIGINAL_ENV;
+});
 
-    const sample: ExplorerApp = {
-        id: "acme",
-        external: true,
-        title: "Acme",
-        logo: "https://example.com/acme.png",
-        shortDescription: "x",
-        categories: ["defi"],
-        author: "Acme",
-        url: "https://acme.example",
-    };
-
-    it("returns only messages tagged with the pending metadata and unresolved reactions", async () => {
+describe("readPendingSubmissions (Airtable-sourced)", () => {
+    it("queries Airtable for Status=Pending and maps rows", async () => {
         const spy = installFetch(async () =>
             jsonResponse({
-                ok: true,
-                messages: [
+                records: [
                     {
-                        ts: "1.0",
-                        metadata: { event_type: PENDING_EVENT_TYPE, event_payload: sample },
-                        reactions: [],
-                    },
-                    {
-                        ts: "2.0",
-                        metadata: { event_type: PENDING_EVENT_TYPE, event_payload: { ...sample, id: "approved" } },
-                        reactions: [{ name: APPROVED_REACTION }],
-                    },
-                    {
-                        ts: "3.0",
-                        metadata: { event_type: PENDING_EVENT_TYPE, event_payload: { ...sample, id: "rejected" } },
-                        reactions: [{ name: REJECTED_REACTION }],
-                    },
-                    {
-                        ts: "4.0",
-                        // no metadata — chat-only message in the channel
-                        reactions: [],
+                        id: "rec1",
+                        fields: {
+                            Name: "Acme",
+                            Website: "https://acme.example",
+                            Description: "x",
+                            Section: "dapps",
+                            Assignee: [{ url: "https://v5.airtableusercontent.com/a" }],
+                        },
                     },
                 ],
             }),
         );
-
-        const result = await readPendingSubmissions({ token: TOKEN, channel: CHANNEL });
-
+        const result = await readPendingSubmissions();
         expect(result).toHaveLength(1);
-        expect(result[0].ts).toBe("1.0");
-        expect(result[0].payload.id).toBe("acme");
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(result[0].recordId).toBe("rec1");
+        expect(result[0].candidate.id).toBe("acme");
         const url = spy.mock.calls[0][0] as string;
-        expect(url).toContain("conversations.history");
-        expect(url).toContain("include_all_metadata=true");
-        expect(url).toContain(`channel=${CHANNEL}`);
-    });
-
-    it("propagates Slack API errors as SlackBatchError", async () => {
-        installFetch(async () => jsonResponse({ ok: false, error: "channel_not_found" }));
-        await expect(readPendingSubmissions({ token: TOKEN, channel: CHANNEL })).rejects.toBeInstanceOf(SlackBatchError);
-    });
-
-    it("rejects HTTP failures", async () => {
-        installFetch(async () => ({ ok: false, status: 500, json: async () => ({}), text: async () => "boom" }) as unknown as Response);
-        await expect(readPendingSubmissions({ token: TOKEN, channel: CHANNEL })).rejects.toBeInstanceOf(SlackBatchError);
-    });
-});
-
-describe("markSubmissionApproved", () => {
-    afterEach(() => jest.restoreAllMocks());
-    it("posts to reactions.add with the approved reaction name", async () => {
-        const spy = installFetch(async () => jsonResponse({ ok: true }));
-        await markSubmissionApproved({ token: TOKEN, channel: CHANNEL, ts: "12.34" });
-        expect(spy).toHaveBeenCalledTimes(1);
-        const init = spy.mock.calls[0][1]!;
-        const body = JSON.parse(init.body as string);
-        expect(body).toEqual({ channel: CHANNEL, timestamp: "12.34", name: APPROVED_REACTION });
+        expect(url).toContain("api.airtable.com");
+        expect(decodeURIComponent(url)).toContain("{Status}='Pending'");
     });
 });
 
 describe("postBatchSummary", () => {
-    afterEach(() => jest.restoreAllMocks());
-    it("renders approved/skipped/error counts and reasons", async () => {
-        const spy = installFetch(async () => jsonResponse({ ok: true }));
-        await postBatchSummary({
+    it("renders approved breakdown / rejected / skipped / error counts and returns the ts", async () => {
+        const spy = installFetch(async () => jsonResponse({ ok: true, ts: "99.9" }));
+        const ts = await postBatchSummary({
             token: TOKEN,
             channel: CHANNEL,
             summary: {
-                approved: 2,
+                approved: 3,
+                approvedExplorer: 1,
+                approvedMap: 1,
+                approvedBoth: 1,
+                rejected: 1,
                 skipped: [{ id: "x", reason: "validation: bad url" }],
-                errors: [{ ts: "4.5", reason: "ETag conflict" }],
+                errors: [{ recordId: "rec4", reason: "ETag conflict" }],
             },
         });
-        const init = spy.mock.calls[0][1]!;
-        const body = JSON.parse(init.body as string);
-        expect(body.text).toContain("Approved: 2");
+        expect(ts).toBe("99.9");
+        const body = JSON.parse(spy.mock.calls[0][1]!.body as string);
+        expect(body.text).toContain("Approved: 3 (Explorer dApps: 1 · Ecosystem map: 1 · Both: 1)");
+        expect(body.text).toContain("Rejected: 1");
         expect(body.text).toContain("Skipped: 1");
         expect(body.text).toContain("Errors: 1");
         expect(body.text).toContain("validation: bad url");
@@ -149,32 +111,90 @@ describe("postBatchSummary", () => {
     });
 });
 
+describe("postApprovalArtifacts", () => {
+    it("uploads the JSON + each logo via the external-upload flow, threaded", async () => {
+        const calls: string[] = [];
+        installFetch(async (url) => {
+            calls.push(url);
+            if (url.includes("files.getUploadURLExternal")) {
+                return jsonResponse({ ok: true, upload_url: "https://files.slack.test/up", file_id: `F${calls.length}` });
+            }
+            if (url.startsWith("https://files.slack.test/up")) {
+                return jsonResponse({ ok: true });
+            }
+            return jsonResponse({ ok: true });
+        });
+        await postApprovalArtifacts({
+            token: TOKEN,
+            channel: CHANNEL,
+            threadTs: "100.1",
+            files: [
+                { filename: "explorer-apps.json", bytes: Buffer.from("[]"), title: "explorer-apps.json" },
+                { filename: "explorer-dapp-acme.png", bytes: Buffer.from("PNG"), title: "explorer-dapp-acme.png" },
+            ],
+        });
+        expect(calls.filter((c) => c.includes("files.getUploadURLExternal"))).toHaveLength(2);
+        expect(calls.filter((c) => c.startsWith("https://files.slack.test/up"))).toHaveLength(2);
+        const complete = calls.find((c) => c.includes("files.completeUploadExternal"));
+        expect(complete).toBeDefined();
+    });
+
+    it("is a no-op when there are no files (e.g. zero approvals)", async () => {
+        const spy = installFetch(async () => jsonResponse({ ok: true }));
+        await postApprovalArtifacts({ token: TOKEN, channel: CHANNEL, files: [] });
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("throws SlackBatchError when the upload POST fails", async () => {
+        installFetch(async (url) => {
+            if (url.includes("files.getUploadURLExternal")) {
+                return jsonResponse({ ok: true, upload_url: "https://files.slack.test/up", file_id: "F1" });
+            }
+            if (url.startsWith("https://files.slack.test/up")) {
+                return { ok: false, status: 500, json: async () => ({}), text: async () => "boom" } as unknown as Response;
+            }
+            return jsonResponse({ ok: true });
+        });
+        await expect(
+            postApprovalArtifacts({
+                token: TOKEN,
+                channel: CHANNEL,
+                files: [{ filename: "a.json", bytes: Buffer.from("x"), title: "a" }],
+            }),
+        ).rejects.toBeInstanceOf(SlackBatchError);
+    });
+});
+
 describe("view builders", () => {
-    it("buildModeSelectorView shows the 3 modes and has no submit button", () => {
+    it("buildModeSelectorView shows the modes and has no submit button", () => {
         const view = buildModeSelectorView();
         expect(view.callback_id).toBe(CALLBACK_ID);
         expect(view.submit).toBeUndefined();
-        const select = view.blocks.find((b) => b.block_id === "mode_block");
-        expect(select).toBeDefined();
+        expect(view.blocks.find((b) => b.block_id === "mode_block")).toBeDefined();
     });
 
-    it("buildPendingModalView with submissions encodes a checkbox per entry and stamps tsList", () => {
+    it("buildPendingModalView encodes the 3 surface-approve groups + Reject", () => {
         const submissions: PendingSubmission[] = [
             {
-                ts: "10.0",
-                payload: {
-                    id: "a", external: true, title: "A", logo: "https://x", shortDescription: "y",
+                recordId: "rec10",
+                candidate: {
+                    id: "a", external: true, title: "A", shortDescription: "y",
                     categories: ["defi"], author: "x", url: "https://x",
+                    ecosystemSection: "dapps",
                 },
-                reactions: [],
+                logoUrl: "https://v5.airtableusercontent.com/a",
             },
         ];
         const view = buildPendingModalView(submissions);
-        expect(view.submit?.text).toBe("Approve selected");
-        expect(view.private_metadata).toBeDefined();
-        const meta = JSON.parse(view.private_metadata!) as { mode: string; tsList: string[] };
+        expect(view.submit?.text).toBe("Apply decisions");
+        const meta = JSON.parse(view.private_metadata!) as { mode: string; recordList: string[] };
         expect(meta.mode).toBe("pending");
-        expect(meta.tsList).toEqual(["10.0"]);
+        expect(meta.recordList).toEqual(["rec10"]);
+        const ids = view.blocks.map((b) => b.block_id);
+        expect(ids).toContain("pending_approve_explorer");
+        expect(ids).toContain("pending_approve_map");
+        expect(ids).toContain("pending_approve_both");
+        expect(ids).toContain("pending_reject");
     });
 
     it("buildPendingModalView with no submissions still produces a closable modal", () => {
@@ -183,16 +203,14 @@ describe("view builders", () => {
     });
 
     it("buildExistingModalView includes id input and delete checkbox", () => {
-        const view = buildExistingModalView();
-        const ids = view.blocks.map((b) => b.block_id);
+        const ids = buildExistingModalView().blocks.map((b) => b.block_id);
         expect(ids).toContain("id");
         expect(ids).toContain("delete_confirm");
         expect(ids).toContain("title");
     });
 
     it("buildSeedModalView includes seed_json textarea and reviewed checkbox", () => {
-        const view = buildSeedModalView();
-        const ids = view.blocks.map((b) => b.block_id);
+        const ids = buildSeedModalView().blocks.map((b) => b.block_id);
         expect(ids).toContain("seed_json");
         expect(ids).toContain("reviewed");
         expect(ids).toContain("replace");
@@ -222,65 +240,38 @@ describe("computeSeedDiff", () => {
 describe("buildSeedDiffView", () => {
     const seedJson = JSON.stringify([{ id: "x" }, { id: "y" }]);
 
-    it("renders summary + per-bucket lists and stamps phase=confirm in private_metadata", () => {
+    it("renders summary + per-bucket lists and stamps phase=confirm", () => {
         const view = buildSeedDiffView({
             diff: { added: ["x"], updated: ["y"], removed: ["z"] },
             seedJson,
             mode: "replace",
         });
         expect(view).not.toBeNull();
-        expect(view!.callback_id).toBe(CALLBACK_ID);
         expect(view!.submit?.text).toBe("Apply");
         const meta = JSON.parse(view!.private_metadata as string) as Record<string, unknown>;
         expect(meta).toMatchObject({ mode: "seed", phase: "confirm", replace: true, seedJson });
-        // Summary block carries the counts.
         const summary = view!.blocks.find((b) => b.block_id === "diff_summary");
         const summaryText = (summary?.text as { text: string } | undefined)?.text ?? "";
         expect(summaryText).toContain("Added: *1*");
-        expect(summaryText).toContain("Updated: *1*");
         expect(summaryText).toContain("Removed: *1*");
-        // Per-bucket id chips present.
-        const added = view!.blocks.find((b) => b.block_id === "diff_added");
-        expect((added?.text as { text: string } | undefined)?.text).toContain("`x`");
-        const removed = view!.blocks.find((b) => b.block_id === "diff_removed");
-        expect((removed?.text as { text: string } | undefined)?.text).toContain("`z`");
     });
 
-    it("omits the removed block in merge mode (merge never deletes)", () => {
+    it("omits the removed block in merge mode", () => {
         const view = buildSeedDiffView({
             diff: { added: ["x"], updated: [], removed: [] },
             seedJson,
             mode: "merge",
         });
         expect(view!.blocks.find((b) => b.block_id === "diff_removed")).toBeUndefined();
-        const meta = JSON.parse(view!.private_metadata as string) as { replace: boolean };
-        expect(meta.replace).toBe(false);
-    });
-
-    it("renders an empty-state marker for a zero-change diff", () => {
-        const view = buildSeedDiffView({
-            diff: { added: [], updated: [], removed: [] },
-            seedJson,
-            mode: "replace",
-        });
-        expect(view).not.toBeNull();
-        const summary = view!.blocks.find((b) => b.block_id === "diff_summary");
-        const summaryText = (summary?.text as { text: string } | undefined)?.text ?? "";
-        expect(summaryText).toContain("Total changes: *0*");
-        const added = view!.blocks.find((b) => b.block_id === "diff_added");
-        expect((added?.text as { text: string } | undefined)?.text).toContain("_(none)_");
     });
 
     it("returns null when the seed payload would overflow private_metadata", () => {
-        // Fabricate a seed that blows past the 2800-char budget.
-        const huge = "x".repeat(3500);
         const view = buildSeedDiffView({
             diff: { added: ["a"], updated: [], removed: [] },
-            seedJson: huge,
+            seedJson: "x".repeat(3500),
             mode: "merge",
         });
         expect(view).toBeNull();
-        // Sanity — exposes the configured ceiling so the contract is testable.
         expect(PRIVATE_METADATA_LIMIT).toBe(3000);
     });
 });

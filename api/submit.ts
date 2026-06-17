@@ -1,37 +1,38 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { auditSubmission, formatAuditForSlack } from "../src/lib/audit";
+import {
+    AirtableError,
+    createSubmissionRecord,
+    deleteRecord,
+    uploadIcon,
+} from "../src/lib/airtable";
 import { loadEnv } from "../src/lib/env";
 import {
     EnvValidationError,
     SubmissionError,
     SubmissionErrorCode,
 } from "../src/lib/errors";
-import type { ExplorerApp } from "../src/lib/explorer-apps-types";
-import { LOGO_CONTENT_TYPE, normalizeLogo } from "../src/lib/logo-image";
 import { parseMultipart, type MultipartFieldValue } from "../src/lib/multipart";
-import { putLogo } from "../src/lib/s3-client";
 import { explorerAppSchema } from "../src/lib/schemas/explorer-app";
 import { SubmissionSchema, type Submission } from "../src/lib/schemas/submission";
 import { postMessage } from "../src/lib/slack";
-import { PENDING_EVENT_TYPE } from "../src/lib/slack-batch";
 import { slugify } from "../src/lib/slug";
 
 /**
- * POST /api/submit — accepts a multipart form, uploads the logo to S3,
- * runs the Anthropic-Claude integrity audit, then posts an approval
- * message tagged with `metadata.event_type=explorer_submission_pending`
- * so the `/explorer-admin` modal can list it from `conversations.history`.
+ * POST /api/submit — accepts the multipart submission form and stages it in
+ * Airtable as a `Status = Pending` row. **Nothing is written to S3** here; the
+ * raw logo is stored as an Airtable attachment and only promoted to S3 (after
+ * normalisation) when a reviewer approves via `/explorer-admin`.
  *
- * Phase-7e shape (post-PR-flow retirement):
- *   - The logo is normalised to a 250×250 PNG with 30px rounded corners and
- *     stored in S3 as `explorer-dapp-<id>.png`; the resulting URL is the
- *     value we store in the entry's `logo` field.
- *   - The Slack message has NO Approve/Reject buttons — those moved to
- *     the multi-mode admin modal. Approval is a batch-write keyed by
- *     metadata + Slack reactions (✅/❌).
- *   - The audit verdict from Claude is rendered in the message body so
- *     the human reviewer sees the signal before opening the modal.
+ * Flow:
+ *   1. Parse + validate the fields (`SubmissionSchema`) and a pre-flight
+ *      `explorerAppSchema` check (so a row that could never become a valid
+ *      registry entry is rejected at the boundary, not left unapprovable).
+ *   2. Create the Airtable record, then upload the raw logo bytes to its
+ *      attachment field. If the upload fails, the record is rolled back.
+ *   3. Post a lightweight Slack notice linking the Airtable record.
+ *
+ * No Claude audit (removed): approval is a purely human review in Slack.
  */
 
 export const config = {
@@ -39,6 +40,10 @@ export const config = {
 };
 
 const ALLOWED_LOGO_MIME = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
+
+// Syntactically-valid placeholder used only for the pre-flight schema check;
+// the real logo URL is assigned at approval after the S3 upload.
+const PREFLIGHT_LOGO_URL = "https://airtable.invalid/pending-logo.png";
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
     setCorsHeaders(res);
@@ -79,54 +84,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
             throw new SubmissionError(SubmissionErrorCode.INVALID_PAYLOAD, "name produces an empty id");
         }
         if (submission.description === undefined || submission.description === "") {
-            // The ExplorerApp schema requires `shortDescription`. Surface
-            // the constraint at the submission boundary rather than failing
-            // mid-pipeline at approval time.
+            // `shortDescription` is required on the explorer card. Surface the
+            // constraint at the boundary rather than failing at approval.
             throw new SubmissionError(
                 SubmissionErrorCode.INVALID_PAYLOAD,
                 "description is required (used as shortDescription on the explorer card)",
             );
         }
 
-        // Normalise every submitted logo to the canonical 250×250 PNG with
-        // 30px rounded corners so the ecosystem-map grid stays visually
-        // uniform. The stored object is always a PNG regardless of upload type.
-        let logoBytes: Buffer;
-        try {
-            logoBytes = await normalizeLogo(parsed.file.bytes);
-        } catch {
-            throw new SubmissionError(
-                SubmissionErrorCode.INVALID_LOGO_TYPE,
-                "Logo could not be processed as an image",
-            );
-        }
-        const logoKey = `explorer-dapp-${id}.png`;
-        const { url: logoUrl } = await putLogo(logoKey, logoBytes, LOGO_CONTENT_TYPE);
+        const categorySlugs =
+            submission.categories === undefined || submission.categories.length === 0
+                ? [submission.section]
+                : submission.categories.map((c) => slugify(c));
 
-        const author = submission.author ?? submission.submitterName ?? "Unknown";
-        const categories = submission.categories === undefined || submission.categories.length === 0
-            ? [submission.section]
-            : submission.categories.map(slugifyCategory);
-
-        const candidate = {
+        // Pre-flight: a logo-less validation of the would-be registry entry, so
+        // anything the explorer-app schema would reject (e.g. shortDescription
+        // >160 chars) is caught now instead of becoming an unapprovable row.
+        // Validate against BOTH surfaces (the strictest case — it requires
+        // `ecosystemSection`) so the row is approvable to any target the
+        // reviewer later picks in Slack.
+        const preflight = explorerAppSchema.safeParse({
             id,
             external: true,
             title: submission.name,
-            logo: logoUrl,
+            logo: PREFLIGHT_LOGO_URL,
             shortDescription: submission.description,
-            categories,
-            author,
+            categories: categorySlugs,
+            author: submission.author ?? submission.submitterName ?? "Unknown",
             url: submission.url,
             ...(submission.longDescription !== undefined ? { description: submission.longDescription } : {}),
             ...(submission.site !== undefined ? { site: submission.site } : {}),
             ...(submission.github !== undefined ? { github: submission.github } : {}),
-            surfaces: ["ecosystem-map"] as const,
+            surfaces: ["explorer-apps", "ecosystem-map"] as const,
             ecosystemSection: submission.section,
-        };
-
-        const validated = explorerAppSchema.safeParse(candidate);
-        if (!validated.success) {
-            const detail = validated.error.issues
+        });
+        if (!preflight.success) {
+            const detail = preflight.error.issues
                 .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
                 .join("; ");
             throw new SubmissionError(
@@ -134,117 +127,90 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
                 `Submission failed explorer-app validation: ${detail}`,
             );
         }
-        const entry: ExplorerApp = validated.data;
 
-        // Run the audit in parallel with logo upload would be nicer but
-        // the audit has to come AFTER the entry is finalized (the prompt
-        // needs the canonical fields). 8s timeout inside auditSubmission
-        // bounds total cost.
-        const auditVerdict = await auditSubmission({
-            title: entry.title,
-            url: entry.url,
-            site: entry.site,
-            github: entry.github,
-            shortDescription: entry.shortDescription,
-            description: entry.description,
-            categories: entry.categories,
-            author: entry.author,
-        });
-        const auditFormatted = formatAuditForSlack(auditVerdict);
-
-        const submitter = submission.submitterName !== undefined
-            ? { email: submission.submitterEmail, name: submission.submitterName }
-            : { email: submission.submitterEmail };
-
-        const blocks = buildPendingMessageBlocks({
-            entry,
-            submitter,
-            auditMrkdwn: auditFormatted.mrkdwn,
+        // Stage in Airtable: create the row, then attach the RAW logo bytes
+        // (normalisation is deferred to approval). Roll back the row if the
+        // attachment upload fails so we never leave a Pending row without a logo.
+        const recordId = await createSubmissionRecord({
+            name: submission.name,
+            url: submission.url,
+            shortDescription: submission.description,
+            section: submission.section,
+            categories: submission.categories,
+            longDescription: submission.longDescription,
+            author: submission.author,
+            site: submission.site,
+            github: submission.github,
+            submitterEmail: submission.submitterEmail,
+            submitterName: submission.submitterName,
         });
 
-        await postMessage({
-            token: env.SLACK_BOT_TOKEN,
-            channel: env.SLACK_APPROVAL_CHANNEL,
-            blocks,
-            text: `New ecosystem submission: ${entry.title}`,
-            // The `metadata` parameter is documented for chat.postMessage.
-            // postMessage's helper takes a fixed set of fields; route the
-            // call through it but extend the body via the `metadata` param.
-            metadata: {
-                event_type: PENDING_EVENT_TYPE,
-                // `event_payload` is typed `Record<string, unknown>` on Slack's
-                // metadata envelope; `ExplorerApp` is structurally compatible
-                // but strictly richer (e.g. `external: boolean`), so the double
-                // cast bridges the narrowing without weakening the value.
-                event_payload: entry as unknown as Record<string, unknown>,
-            },
-        });
+        try {
+            await uploadIcon(recordId, parsed.file.bytes, parsed.file.mimeType, parsed.file.filename || `${id}`);
+        } catch (uploadErr) {
+            try {
+                await deleteRecord(recordId);
+            } catch (rollbackErr) {
+                console.error("[submit] failed to roll back record after icon upload error", rollbackErr);
+            }
+            throw new SubmissionError(
+                SubmissionErrorCode.UPSTREAM_AIRTABLE,
+                `Failed to attach logo to Airtable: ${uploadErr instanceof Error ? uploadErr.message : String(uploadErr)}`,
+            );
+        }
 
-        res.status(200).json({
-            ok: true,
-            id,
-            audit: auditVerdict.verdict,
-        });
+        // Best-effort Slack notice — a failed post must not fail the submission
+        // (the row is already safely staged in Airtable).
+        try {
+            await postMessage({
+                token: env.SLACK_BOT_TOKEN,
+                channel: env.SLACK_APPROVAL_CHANNEL,
+                text: `New ecosystem submission: ${submission.name}`,
+                blocks: buildNoticeBlocks({
+                    name: submission.name,
+                    id,
+                    section: submission.section,
+                    submitterEmail: submission.submitterEmail,
+                    recordUrl: `https://airtable.com/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_ID}/${recordId}`,
+                }),
+            });
+        } catch (slackErr) {
+            console.warn("[submit] Slack notice failed (submission still staged)", slackErr);
+        }
+
+        res.status(200).json({ ok: true, id, recordId });
     } catch (err) {
         respondWithError(res, err);
     }
 }
 
-function buildPendingMessageBlocks(args: {
-    entry: ExplorerApp;
-    submitter: { email: string; name?: string };
-    auditMrkdwn: string;
+function buildNoticeBlocks(args: {
+    name: string;
+    id: string;
+    section: string;
+    submitterEmail: string;
+    recordUrl: string;
 }): Array<Record<string, unknown>> {
-    const e = args.entry;
-    const fields: string[] = [
-        `*Title:* ${escapeMarkdown(e.title)}`,
-        `*ID:* \`${e.id}\``,
-        `*Section:* ${e.ecosystemSection ?? "(none)"}`,
-        `*URL:* <${e.url}|${escapeMarkdown(e.url)}>`,
-        `*Author:* ${escapeMarkdown(e.author)}`,
-        `*Categories:* ${e.categories.map((c) => `\`${c}\``).join(", ")}`,
-        `*Short description:* ${escapeMarkdown(e.shortDescription)}`,
-        `*Submitter:* ${escapeMarkdown(args.submitter.name ?? "(anonymous)")} <${escapeMarkdown(args.submitter.email)}>`,
-    ];
-    if (e.site !== undefined) fields.push(`*Site:* <${e.site}|${escapeMarkdown(e.site)}>`);
-    if (e.github !== undefined) fields.push(`*GitHub:* <${e.github}|${escapeMarkdown(e.github)}>`);
-    if (e.description !== undefined) fields.push(`*Description:* ${escapeMarkdown(e.description)}`);
-
     return [
         {
-            type: "header",
-            text: { type: "plain_text", text: "New ecosystem submission" },
-        },
-        {
             type: "section",
-            text: { type: "mrkdwn", text: fields.join("\n") },
-        },
-        {
-            type: "image",
-            image_url: e.logo,
-            alt_text: `${e.title} logo`,
-        },
-        {
-            type: "section",
-            text: { type: "mrkdwn", text: args.auditMrkdwn },
+            text: {
+                type: "mrkdwn",
+                text:
+                    `:inbox_tray: *New submission:* ${escapeMarkdown(args.name)} (\`${args.id}\`)\n` +
+                    `Section: \`${args.section}\` — review via \`/explorer-admin\` → *Pending submissions*.`,
+            },
         },
         {
             type: "context",
             elements: [
                 {
                     type: "mrkdwn",
-                    text: "Use `/explorer-admin` → *Pending submissions* to approve in batch.",
+                    text: `<${args.recordUrl}|Open in Airtable> · from ${escapeMarkdown(args.submitterEmail)}`,
                 },
             ],
         },
     ];
-}
-
-const NON_SLUG_CHARS = /[^a-z0-9]+/g;
-const TRIM_DASH = /^-+|-+$/g;
-
-function slugifyCategory(c: string): string {
-    return c.toLowerCase().replace(NON_SLUG_CHARS, "-").replace(TRIM_DASH, "");
 }
 
 function parseSubmissionFields(fields: Record<string, MultipartFieldValue>): Submission {
@@ -301,6 +267,11 @@ function respondWithError(res: VercelResponse, err: unknown): void {
         res.status(500).json({ ok: false, code: "ENV_INVALID", message: "Server is misconfigured" });
         return;
     }
+    if (err instanceof AirtableError) {
+        console.error("[submit] Airtable error", err.message);
+        res.status(502).json({ ok: false, code: "UPSTREAM_AIRTABLE", message: "Could not stage the submission" });
+        return;
+    }
     console.error("[submit] unexpected error", err instanceof Error ? err.stack ?? err.message : err);
     res.status(500).json({ ok: false, code: "INTERNAL", message: "Internal error" });
 }
@@ -316,6 +287,7 @@ function mapSubmissionStatus(code: SubmissionErrorCode): number {
         case SubmissionErrorCode.LOGO_TOO_LARGE:
             return 413;
         case SubmissionErrorCode.UPSTREAM_SLACK:
+        case SubmissionErrorCode.UPSTREAM_AIRTABLE:
             return 502;
         default: {
             const exhaustive: never = code;

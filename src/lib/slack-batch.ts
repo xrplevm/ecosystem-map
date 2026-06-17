@@ -1,35 +1,32 @@
-import type { ExplorerApp } from "./explorer-apps-types";
+import { listPendingSubmissions, type PendingSubmission } from "./airtable";
+
+export type { PendingSubmission } from "./airtable";
 
 /**
  * Slack helpers + view builders that back the `/explorer-admin` slash
- * command (sub-task phase-7e).
+ * command.
  *
  * Why this lives outside `slack.ts`:
- *   - `slack.ts` is the legacy intake/approval surface (button-driven).
- *     This module is the modal/batch surface and uses Slack APIs (views.*,
- *     conversations.history, reactions.add) the legacy module never
- *     touched. Keeping them apart lets us evolve the modal without
- *     destabilising the v1 intake path.
+ *   - `slack.ts` is the legacy intake surface. This module is the
+ *     modal/batch surface and uses Slack APIs (views.*, files.*) the legacy
+ *     module never touched. Keeping them apart lets us evolve the modal
+ *     without destabilising the intake path.
  *   - All HTTP I/O is done with `fetch` so tests stub a single seam
  *     (`globalThis.fetch`) without pulling in `@slack/web-api`.
  *
+ * The pending queue is sourced from **Airtable** (`Status = Pending`), not
+ * from Slack message metadata — see `airtable.ts`. Status transitions live in
+ * Airtable; Slack only carries the notice + batch summary + approval artifacts.
+ *
  * Slack API surface used by this module:
  *   - `views.open`, `views.update` — modal lifecycle.
- *   - `conversations.history` (`include_all_metadata=true`) — Slack is
- *     the source-of-truth for pending submissions; we filter messages
- *     bearing `metadata.event_type === "explorer_submission_pending"`
- *     that have not yet been resolved (no ✅/❌ reaction from us).
- *   - `reactions.add` — terminal-state markers.
- *   - `chat.postMessage` (already in `slack.ts`) — batch summary.
+ *   - `chat.postMessage` (also in `slack.ts`) — batch summary.
+ *   - `files.getUploadURLExternal` + `files.completeUploadExternal` —
+ *     post the updated registry JSON + added logos after a batch.
  */
 
 const SLACK_API_BASE = "https://slack.com/api";
 const REQUEST_TIMEOUT_MS = 8_000;
-const PENDING_HISTORY_LIMIT = 50;
-
-export const PENDING_EVENT_TYPE = "explorer_submission_pending";
-export const APPROVED_REACTION = "white_check_mark";
-export const REJECTED_REACTION = "x";
 
 export class SlackBatchError extends Error {
     public readonly code: string;
@@ -69,115 +66,58 @@ async function slackCall<T>(
     return json;
 }
 
-export interface PendingSubmission {
-    ts: string;
-    /** The structured payload originally attached as message metadata. */
-    payload: ExplorerApp;
-    /** Reactions already on the message (used to filter out resolved ones). */
-    reactions: string[];
-}
-
-interface HistoryMessage {
-    ts: string;
-    metadata?: {
-        event_type?: string;
-        event_payload?: Record<string, unknown>;
-    };
-    reactions?: Array<{ name: string; users?: string[]; count?: number }>;
-}
-
-interface ConversationsHistoryResponse {
-    messages: HistoryMessage[];
-}
-
 /**
- * List unresolved submissions in the channel — messages we tagged with the
- * `explorer_submission_pending` metadata that don't yet carry our terminal
- * reaction. Truncated at PENDING_HISTORY_LIMIT (Slack modal can't fit more
- * than ~50 checkboxes anyway).
+ * List the Airtable rows awaiting review (`Status = Pending`), mapped to
+ * registry candidates. Thin wrapper over `airtable.listPendingSubmissions`
+ * so the modal handler imports a single batch surface.
  */
-export async function readPendingSubmissions(args: {
-    token: string;
-    channel: string;
-    limit?: number;
-}): Promise<PendingSubmission[]> {
-    const limit = args.limit ?? PENDING_HISTORY_LIMIT;
-    // `include_all_metadata=true` is the documented opt-in to receive the
-    // `metadata` field on history messages. Without it, Slack omits the
-    // structured payload we wrote at intake time.
-    const data = await slackCall<ConversationsHistoryResponse>(
-        `conversations.history?channel=${encodeURIComponent(args.channel)}&include_all_metadata=true&limit=${limit}`,
-        args.token,
-        undefined,
-        "GET",
-    );
-    const out: PendingSubmission[] = [];
-    for (const msg of data.messages) {
-        if (msg.metadata?.event_type !== PENDING_EVENT_TYPE) continue;
-        const reactions = (msg.reactions ?? []).map((r) => r.name);
-        if (reactions.includes(APPROVED_REACTION) || reactions.includes(REJECTED_REACTION)) continue;
-        const payload = msg.metadata.event_payload;
-        if (payload === undefined || payload === null) continue;
-        // Defensive: the payload is opaque at this layer — the modal handler
-        // re-validates with the explorer-app Zod schema before mutating S3.
-        out.push({ ts: msg.ts, payload: payload as unknown as ExplorerApp, reactions });
-    }
-    return out;
-}
-
-export async function markSubmissionApproved(args: {
-    token: string;
-    channel: string;
-    ts: string;
-}): Promise<void> {
-    await slackCall<unknown>("reactions.add", args.token, {
-        channel: args.channel,
-        timestamp: args.ts,
-        name: APPROVED_REACTION,
-    });
-}
-
-export async function markSubmissionRejected(args: {
-    token: string;
-    channel: string;
-    ts: string;
-}): Promise<void> {
-    await slackCall<unknown>("reactions.add", args.token, {
-        channel: args.channel,
-        timestamp: args.ts,
-        name: REJECTED_REACTION,
-    });
+export async function readPendingSubmissions(): Promise<PendingSubmission[]> {
+    return listPendingSubmissions();
 }
 
 export interface BatchSummary {
     approved: number;
-    skipped: Array<{ id?: string; ts?: string; reason: string }>;
-    errors: Array<{ id?: string; ts?: string; reason: string }>;
+    /** Per-target breakdown of the `approved` total. */
+    approvedExplorer: number;
+    approvedMap: number;
+    approvedBoth: number;
+    rejected: number;
+    skipped: Array<{ id?: string; recordId?: string; reason: string }>;
+    errors: Array<{ id?: string; recordId?: string; reason: string }>;
 }
 
+/**
+ * Post the batch summary and return its `ts` so approval artifacts can be
+ * threaded underneath it.
+ */
 export async function postBatchSummary(args: {
     token: string;
     channel: string;
     summary: BatchSummary;
     threadTs?: string;
-}): Promise<void> {
-    const { approved } = args.summary;
+}): Promise<string> {
+    const { approved, approvedExplorer, approvedMap, approvedBoth, rejected } = args.summary;
+    const approvedLine =
+        approved > 0
+            ? `• Approved: ${approved} (Explorer dApps: ${approvedExplorer} · Ecosystem map: ${approvedMap} · Both: ${approvedBoth})`
+            : `• Approved: ${approved}`;
     const lines = [
         `*Batch summary*`,
-        `• Approved: ${approved}`,
+        approvedLine,
+        `• Rejected: ${rejected}`,
         `• Skipped: ${args.summary.skipped.length}`,
         `• Errors: ${args.summary.errors.length}`,
     ];
     if (args.summary.skipped.length > 0) {
         lines.push("", "*Skipped*");
         for (const s of args.summary.skipped) {
-            lines.push(`• \`${s.id ?? s.ts ?? "?"}\` — ${s.reason}`);
+            lines.push(`• \`${s.id ?? s.recordId ?? "?"}\` — ${s.reason}`);
         }
     }
     if (args.summary.errors.length > 0) {
         lines.push("", "*Errors*");
         for (const e of args.summary.errors) {
-            lines.push(`• \`${e.id ?? e.ts ?? "?"}\` — ${e.reason}`);
+            lines.push(`• \`${e.id ?? e.recordId ?? "?"}\` — ${e.reason}`);
         }
     }
     const body: Record<string, unknown> = {
@@ -186,7 +126,59 @@ export async function postBatchSummary(args: {
         blocks: [{ type: "section", text: { type: "mrkdwn", text: lines.join("\n") } }],
     };
     if (args.threadTs !== undefined) body.thread_ts = args.threadTs;
-    await slackCall<unknown>("chat.postMessage", args.token, body);
+    const res = await slackCall<{ ts: string }>("chat.postMessage", args.token, body);
+    return res.ts;
+}
+
+export interface ApprovalArtifact {
+    filename: string;
+    bytes: Buffer;
+    title: string;
+}
+
+/**
+ * After a successful batch, upload the updated `explorer-apps.json` and each
+ * newly added logo PNG to the channel (threaded under the summary) as a
+ * Slack-side record of exactly what was added. No-op when `files` is empty.
+ *
+ * Uses Slack's two-step external upload (`files.getUploadURLExternal` →
+ * POST bytes → `files.completeUploadExternal`); `files.upload` is deprecated.
+ */
+export async function postApprovalArtifacts(args: {
+    token: string;
+    channel: string;
+    threadTs?: string;
+    files: ApprovalArtifact[];
+}): Promise<void> {
+    if (args.files.length === 0) return;
+    const completed: Array<{ id: string; title: string }> = [];
+    for (const file of args.files) {
+        const params = new URLSearchParams({
+            filename: file.filename,
+            length: String(file.bytes.length),
+        });
+        const ticket = await slackCall<{ upload_url: string; file_id: string }>(
+            `files.getUploadURLExternal?${params.toString()}`,
+            args.token,
+            undefined,
+            "GET",
+        );
+        const upload = await fetch(ticket.upload_url, {
+            method: "POST",
+            body: new Uint8Array(file.bytes),
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+        if (!upload.ok) {
+            throw new SlackBatchError("UPLOAD", `File upload POST returned HTTP ${upload.status}`);
+        }
+        completed.push({ id: ticket.file_id, title: file.title });
+    }
+    const body: Record<string, unknown> = {
+        files: completed,
+        channel_id: args.channel,
+    };
+    if (args.threadTs !== undefined) body.thread_ts = args.threadTs;
+    await slackCall<unknown>("files.completeUploadExternal", args.token, body);
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +261,11 @@ export function buildPendingModalView(submissions: PendingSubmission[]): SlackVi
             block_id: "pending_intro",
             text: {
                 type: "mrkdwn",
-                text: `*Pending submissions*: ${submissions.length}\nCheck the entries you want to approve and submit. Unchecked entries stay pending.`,
+                text:
+                    `*Pending submissions*: ${submissions.length}\n` +
+                    "Check each row under the surface to publish it to — *Explorer dApps*, " +
+                    "*Ecosystem map*, or *Both* — or under *Reject* to dismiss. A row left " +
+                    "unchecked everywhere stays pending; a row checked in more than one group is refused.",
             },
         },
     ];
@@ -279,7 +275,7 @@ export function buildPendingModalView(submissions: PendingSubmission[]): SlackVi
             callback_id: CALLBACK_ID,
             title: { type: "plain_text", text: "Explorer admin" },
             close: { type: "plain_text", text: "Close" },
-            private_metadata: JSON.stringify({ mode: "pending", tsList: [] }),
+            private_metadata: JSON.stringify({ mode: "pending", recordList: [] }),
             blocks: [
                 ...baseBlocks,
                 {
@@ -292,40 +288,57 @@ export function buildPendingModalView(submissions: PendingSubmission[]): SlackVi
     const options = submissions.map((s) => ({
         text: {
             type: "plain_text" as const,
-            text: truncate(`${s.payload.title} (${s.payload.id})`, 75),
+            text: truncate(`${s.candidate.title} (${s.candidate.id})`, 75),
         },
         description: {
             type: "plain_text" as const,
-            text: truncate(s.payload.url, 75),
+            text: truncate(s.candidate.url, 75),
         },
-        value: s.ts,
+        value: s.recordId,
     }));
     return {
         type: "modal",
         callback_id: CALLBACK_ID,
         title: { type: "plain_text", text: "Explorer admin" },
-        submit: { type: "plain_text", text: "Approve selected" },
+        submit: { type: "plain_text", text: "Apply decisions" },
         close: { type: "plain_text", text: "Cancel" },
         private_metadata: JSON.stringify({
             mode: "pending",
-            tsList: submissions.map((s) => s.ts),
+            recordList: submissions.map((s) => s.recordId),
         }),
         blocks: [
             ...baseBlocks,
-            {
-                type: "input",
-                block_id: "pending_selection",
-                optional: true,
-                label: { type: "plain_text", text: "Approve" },
-                element: {
-                    type: "checkboxes",
-                    action_id: "selected",
-                    options,
-                },
-            },
+            approveGroup("pending_approve_explorer", "Approve → Explorer dApps", options),
+            approveGroup("pending_approve_map", "Approve → Ecosystem map", options),
+            approveGroup("pending_approve_both", "Approve → Both surfaces", options),
+            approveGroup("pending_reject", "Reject", options),
         ],
     };
 }
+
+type CheckboxOption = {
+    text: { type: "plain_text"; text: string };
+    description: { type: "plain_text"; text: string };
+    value: string;
+};
+
+function approveGroup(blockId: string, label: string, options: CheckboxOption[]): SlackBlock {
+    return {
+        type: "input",
+        block_id: blockId,
+        optional: true,
+        label: { type: "plain_text", text: label },
+        element: { type: "checkboxes", action_id: "selected", options },
+    };
+}
+
+/** Block ids of the per-surface approve groups + reject, in display order. */
+export const PENDING_DECISION_BLOCKS = {
+    explorer: "pending_approve_explorer",
+    map: "pending_approve_map",
+    both: "pending_approve_both",
+    reject: "pending_reject",
+} as const;
 
 export function buildExistingModalView(): SlackView {
     return {

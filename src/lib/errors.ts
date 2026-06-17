@@ -13,6 +13,7 @@ export enum SubmissionErrorCode {
     LOGO_MISSING = "LOGO_MISSING",
     SECTION_INVALID = "SECTION_INVALID",
     UPSTREAM_SLACK = "UPSTREAM_SLACK",
+    UPSTREAM_AIRTABLE = "UPSTREAM_AIRTABLE",
 }
 
 export enum SlackVerifyErrorCode {

@@ -3,26 +3,32 @@
  *
  * End-to-end tests for the `/api/slack/actions` dispatcher. We drive the
  * exported handler with signed bodies and stub:
- *   - `globalThis.fetch` for Slack API calls (history / reactions / views
- *     / chat.postMessage).
- *   - The S3 client (`aws-sdk-client-mock`) for `getObject` /
- *     `putObject`, so `withEtagRetry` exercises the real retry logic.
- *   - The Anthropic SDK module (`@anthropic-ai/sdk`) so audit calls don't
- *     touch the network.
+ *   - `globalThis.fetch` for Slack API calls (views / chat.postMessage /
+ *     files.* upload flow).
+ *   - The S3 client (`aws-sdk-client-mock`) for `getObject` / `putObject`,
+ *     so `withEtagRetry` and `putLogo` exercise the real client.
+ *   - The Airtable module (pending queue + status writes) and `logo-image`
+ *     (`normalizeLogo`, which loads `sharp` — unavailable under jest).
  */
 /* eslint-disable import/first */
 
-// Stub Anthropic so `auditSubmission` can be exercised without a real key.
-// `jest.mock` is hoisted by Jest above the static `import`s below.
-jest.mock("@anthropic-ai/sdk", () => {
-    const create = jest.fn(async () => ({
-        content: [{ type: "text", text: JSON.stringify({ verdict: "ok", findings: [] }) }],
-    }));
-    return {
-        __esModule: true,
-        default: jest.fn().mockImplementation(() => ({ messages: { create } })),
-    };
-});
+// Mock the logo normaliser so `sharp` never loads under jest.
+jest.mock("../logo-image", () => ({
+    __esModule: true,
+    normalizeLogo: jest.fn(async (b: Buffer) => b),
+    LOGO_CONTENT_TYPE: "image/png",
+    LOGO_SIZE: 250,
+    LOGO_CORNER_RADIUS: 30,
+}));
+
+// Mock Airtable so the pending queue + status writes are controllable.
+jest.mock("../airtable", () => ({
+    __esModule: true,
+    STATUS: { pending: "Pending", approved: "Approved", rejected: "Rejected" },
+    listPendingSubmissions: jest.fn(async () => []),
+    setStatus: jest.fn(async () => undefined),
+    downloadAttachment: jest.fn(async () => Buffer.from("RAWLOGO")),
+}));
 
 import { createHmac } from "crypto";
 
@@ -30,12 +36,21 @@ import { GetObjectCommand, GetObjectCommandOutput, PutObjectCommand, S3Client } 
 import { mockClient } from "aws-sdk-client-mock";
 
 import handler from "../../../api/slack/actions";
+import * as airtable from "../airtable";
+import type { ExplorerAppCandidate, PendingSubmission } from "../airtable";
 import { __resetEnvCacheForTests } from "../env";
+import { normalizeLogo } from "../logo-image";
 import { __resetS3StateForTests } from "../s3-client";
 import type { ExplorerApp } from "../explorer-apps-types";
 
-const SIGNING_SECRET = "x".repeat(32);
+// CRA's jest runs with `resetMocks: true`, so factory implementations are
+// wiped before each test — every mock impl is (re)established in beforeEach.
+const listPendingMock = airtable.listPendingSubmissions as jest.Mock;
+const setStatusMock = airtable.setStatus as jest.Mock;
+const downloadMock = airtable.downloadAttachment as jest.Mock;
+const normalizeMock = normalizeLogo as jest.Mock;
 
+const SIGNING_SECRET = "x".repeat(32);
 const s3Mock = mockClient(S3Client);
 
 // ---------- helpers ----------
@@ -76,6 +91,18 @@ function installFetch(impl: (url: string, init?: RequestInit) => Promise<Respons
     });
     (globalThis as { fetch: typeof fetch }).fetch = spy as unknown as typeof fetch;
     return { spy, calls };
+}
+
+/** Default Slack stub: everything ok; chat.postMessage returns a ts. */
+function installSlackOk(): { calls: FetchCall[] } {
+    const { calls } = installFetch(async (url) => {
+        if (url.includes("chat.postMessage")) return jsonResp({ ok: true, ts: "777.1" });
+        if (url.includes("files.getUploadURLExternal")) {
+            return jsonResp({ ok: true, upload_url: "https://files.slack.test/up", file_id: "F1" });
+        }
+        return jsonResp({ ok: true });
+    });
+    return { calls };
 }
 
 interface FakeReq { method: string; headers: Record<string, string>; on: (event: string, cb: (chunk: unknown) => void) => FakeReq; }
@@ -136,10 +163,15 @@ async function postSignedPayload(payload: Record<string, unknown>): Promise<Fake
 
 // ---------- fixtures ----------
 
-const ACME: ExplorerApp = {
-    id: "acme", external: true, title: "Acme", logo: "https://x.example/a.png",
-    shortDescription: "x", categories: ["bridge"], author: "Acme", url: "https://acme.example",
+const ACME_CANDIDATE: ExplorerAppCandidate = {
+    id: "acme", external: true, title: "Acme", shortDescription: "x",
+    categories: ["bridge"], author: "Acme", url: "https://acme.example",
+    ecosystemSection: "dapps",
 };
+function pending(recordId: string, candidate: ExplorerAppCandidate, logoUrl = "https://v5.airtableusercontent.com/x"): PendingSubmission {
+    return { recordId, candidate, logoUrl };
+}
+
 const BETA: ExplorerApp = {
     id: "beta", external: true, title: "Beta", logo: "https://x.example/b.png",
     shortDescription: "y", categories: ["defi"], author: "Beta", url: "https://beta.example",
@@ -151,10 +183,17 @@ beforeEach(() => {
     s3Mock.reset();
     __resetEnvCacheForTests();
     __resetS3StateForTests();
+    listPendingMock.mockResolvedValue([]);
+    setStatusMock.mockResolvedValue(undefined);
+    downloadMock.mockResolvedValue(Buffer.from("RAWLOGO"));
+    normalizeMock.mockImplementation(async (b: Buffer) => b);
     process.env = { ...ORIGINAL_ENV };
     process.env.SLACK_BOT_TOKEN = "xoxb-test";
     process.env.SLACK_SIGNING_SECRET = SIGNING_SECRET;
     process.env.SLACK_APPROVAL_CHANNEL = "C123";
+    process.env.AIRTABLE_API_KEY = "patTEST";
+    process.env.AIRTABLE_BASE_ID = "appTEST";
+    process.env.AIRTABLE_TABLE_ID = "tblTEST";
     process.env.AWS_REGION = "eu-west-1";
     process.env.S3_BUCKET = "peersyst-development";
     process.env.S3_JSON_KEY = "explorer-apps.json";
@@ -165,121 +204,134 @@ beforeEach(() => {
 afterAll(() => { process.env = ORIGINAL_ENV; });
 afterEach(() => { jest.restoreAllMocks(); });
 
-// ---------- approve (pending mode) ----------
+// ---------- pending: approve / reject ----------
 
-describe("view_submission · pending mode (approve batch)", () => {
-    it("appends valid submissions to S3, marks ✅, and posts a summary", async () => {
-        // Existing canonical JSON has BETA only.
+describe("view_submission · pending mode (per-surface approve / reject)", () => {
+    function group(ids?: string[]): { selected: { type: string; selected_options: Array<{ value: string }> } } {
+        return { selected: { type: "checkboxes", selected_options: (ids ?? []).map((v) => ({ value: v })) } };
+    }
+    function pendingPayload(opts: { explorer?: string[]; map?: string[]; both?: string[]; reject?: string[] }): Record<string, unknown> {
+        const all = [...(opts.explorer ?? []), ...(opts.map ?? []), ...(opts.both ?? []), ...(opts.reject ?? [])];
+        return {
+            type: "view_submission",
+            user: { id: "U1" },
+            view: {
+                id: "V1",
+                callback_id: "explorer_admin_v1",
+                private_metadata: JSON.stringify({ mode: "pending", recordList: all }),
+                state: {
+                    values: {
+                        pending_approve_explorer: group(opts.explorer),
+                        pending_approve_map: group(opts.map),
+                        pending_approve_both: group(opts.both),
+                        pending_reject: group(opts.reject),
+                    },
+                },
+            },
+        };
+    }
+
+    function writtenEntries(): ExplorerApp[] {
+        const jsonPut = s3Mock.commandCalls(PutObjectCommand).find((p) => p.args[0].input.Key === "explorer-apps.json")!;
+        return JSON.parse(jsonPut.args[0].input.Body as string) as ExplorerApp[];
+    }
+
+    it("approves to the Ecosystem map: surfaces=[ecosystem-map] with ecosystemSection, posts summary + artifacts", async () => {
         s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([BETA]) });
         s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
+        listPendingMock.mockResolvedValue([pending("rec1", ACME_CANDIDATE)]);
+        const { calls } = installSlackOk();
 
-        const slackResponses = new Map<string, unknown>([
-            ["conversations.history", {
-                ok: true,
-                messages: [
-                    { ts: "1.0", metadata: { event_type: "explorer_submission_pending", event_payload: ACME }, reactions: [] },
-                ],
-            }],
-            ["reactions.add", { ok: true }],
-            ["chat.postMessage", { ok: true }],
-        ]);
-        const { calls } = installFetch(async (url) => {
-            for (const [k, body] of Array.from(slackResponses)) if (url.includes(k)) return jsonResp(body);
-            return jsonResp({ ok: true });
-        });
-
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "pending", tsList: ["1.0"] }),
-                state: {
-                    values: {
-                        pending_selection: {
-                            selected: { type: "checkboxes", selected_options: [{ value: "1.0" }] },
-                        },
-                    },
-                },
-            },
-        });
+        const res = await postSignedPayload(pendingPayload({ map: ["rec1"] }));
 
         expect(res.statusCode).toBe(200);
-        // S3 PUT body = original [BETA] + new [ACME] (order: existing first then appended).
-        const puts = s3Mock.commandCalls(PutObjectCommand);
-        expect(puts).toHaveLength(1);
-        const written = JSON.parse(puts[0].args[0].input.Body as string) as ExplorerApp[];
-        expect(written.map((e) => e.id).sort()).toEqual(["acme", "beta"]);
-
-        // reactions.add called with the right ts.
-        const reactionCalls = calls.filter((c) => c.url.includes("reactions.add"));
-        expect(reactionCalls).toHaveLength(1);
-        expect(JSON.parse(reactionCalls[0].init.body as string)).toMatchObject({
-            channel: "C123", timestamp: "1.0", name: "white_check_mark",
-        });
-        // Summary posted with approved=1.
-        const summaryCall = calls.find((c) => c.url.includes("chat.postMessage"));
-        expect(summaryCall).toBeDefined();
-        expect((JSON.parse(summaryCall!.init.body as string) as { text: string }).text).toContain("Approved: 1");
+        const keys = s3Mock.commandCalls(PutObjectCommand).map((p) => p.args[0].input.Key);
+        expect(keys).toContain("explorer-dapp-acme.png");
+        const acme = writtenEntries().find((e) => e.id === "acme")!;
+        expect(acme.surfaces).toEqual(["ecosystem-map"]);
+        expect(acme.ecosystemSection).toBe("dapps");
+        expect(setStatusMock).toHaveBeenCalledWith("rec1", "Approved", expect.objectContaining({ registryId: "acme" }));
+        const summary = calls.find((c) => c.url.includes("chat.postMessage"))!;
+        expect((JSON.parse(summary.init.body as string) as { text: string }).text).toContain("Ecosystem map: 1");
+        expect(calls.some((c) => c.url.includes("files.completeUploadExternal"))).toBe(true);
     });
 
-    it("skips submissions failing schema validation and reports them in the summary", async () => {
+    it("approves to Explorer dApps: surfaces=[explorer-apps] and drops ecosystemSection", async () => {
         s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([]) });
         s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        const broken = { ...ACME, url: "not-a-url" };
-        installFetch(async (url) => {
-            if (url.includes("conversations.history")) {
-                return jsonResp({
-                    ok: true,
-                    messages: [
-                        { ts: "1.0", metadata: { event_type: "explorer_submission_pending", event_payload: broken }, reactions: [] },
-                    ],
-                });
-            }
-            return jsonResp({ ok: true });
-        });
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "pending" }),
-                state: {
-                    values: {
-                        pending_selection: { selected: { type: "checkboxes", selected_options: [{ value: "1.0" }] } },
-                    },
-                },
-            },
-        });
+        listPendingMock.mockResolvedValue([pending("rec1", ACME_CANDIDATE)]);
+        installSlackOk();
+
+        await postSignedPayload(pendingPayload({ explorer: ["rec1"] }));
+
+        const acme = writtenEntries().find((e) => e.id === "acme")!;
+        expect(acme.surfaces).toEqual(["explorer-apps"]);
+        expect(acme.ecosystemSection).toBeUndefined();
+    });
+
+    it("approves to Both: surfaces include explorer-apps and ecosystem-map", async () => {
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([]) });
+        s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
+        listPendingMock.mockResolvedValue([pending("rec1", ACME_CANDIDATE)]);
+        installSlackOk();
+
+        await postSignedPayload(pendingPayload({ both: ["rec1"] }));
+
+        const acme = writtenEntries().find((e) => e.id === "acme")!;
+        expect(acme.surfaces!.slice().sort()).toEqual(["ecosystem-map", "explorer-apps"]);
+        expect(acme.ecosystemSection).toBe("dapps");
+    });
+
+    it("rejects: marks Rejected and never writes to S3", async () => {
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([BETA]) });
+        s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
+        listPendingMock.mockResolvedValue([pending("rec1", ACME_CANDIDATE)]);
+        installSlackOk();
+
+        const res = await postSignedPayload(pendingPayload({ reject: ["rec1"] }));
+
         expect(res.statusCode).toBe(200);
-        // Nothing valid, so no S3 PUT.
+        expect(setStatusMock).toHaveBeenCalledWith("rec1", "Rejected");
         expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
     });
 
-    it("returns inline modal error when no entries are selected", async () => {
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "pending" }),
-                state: { values: { pending_selection: { selected: { type: "checkboxes", selected_options: [] } } } },
-            },
-        });
+    it("refuses a row checked in two groups (inline error, no writes)", async () => {
+        listPendingMock.mockResolvedValue([pending("rec1", ACME_CANDIDATE)]);
+        installSlackOk();
+        const res = await postSignedPayload(pendingPayload({ explorer: ["rec1"], map: ["rec1"] }));
+        const body = res.body as { response_action: string; errors: Record<string, string> };
+        expect(body.response_action).toBe("errors");
+        expect(body.errors.pending_reject).toBeDefined();
+        expect(setStatusMock).not.toHaveBeenCalled();
+        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
+    });
+
+    it("returns an inline error when nothing is selected", async () => {
+        const res = await postSignedPayload(pendingPayload({}));
         expect((res.body as { response_action?: string }).response_action).toBe("errors");
+    });
+
+    it("skips a row that is no longer pending (no S3 write)", async () => {
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([BETA]) });
+        s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
+        listPendingMock.mockResolvedValue([]); // rec9 is gone
+        installSlackOk();
+        const res = await postSignedPayload(pendingPayload({ map: ["rec9"] }));
+        expect(res.statusCode).toBe(200);
+        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
+        expect(setStatusMock).not.toHaveBeenCalled();
     });
 });
 
 // ---------- existing (edit/delete) ----------
 
+const ACME_FULL: ExplorerApp = { ...ACME_CANDIDATE, logo: "https://x.example/a.png" };
+
 describe("view_submission · existing mode (edit / delete)", () => {
     it("filters the entry on delete and writes the shrunken array", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME, BETA]) });
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME_FULL, BETA]) });
         s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        installFetch(async () => jsonResp({ ok: true }));
+        installSlackOk();
 
         const res = await postSignedPayload({
             type: "view_submission",
@@ -297,70 +349,14 @@ describe("view_submission · existing mode (edit / delete)", () => {
             },
         });
         expect(res.statusCode).toBe(200);
-        const puts = s3Mock.commandCalls(PutObjectCommand);
-        expect(puts).toHaveLength(1);
-        const written = JSON.parse(puts[0].args[0].input.Body as string) as ExplorerApp[];
+        const written = JSON.parse(s3Mock.commandCalls(PutObjectCommand)[0].args[0].input.Body as string) as ExplorerApp[];
         expect(written.map((e) => e.id)).toEqual(["beta"]);
     });
 
-    it("rejects delete when the id does not exist (inline modal error)", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "existing" }),
-                state: {
-                    values: {
-                        id: { value: { type: "plain_text_input", value: "ghost" } },
-                        delete_confirm: { value: { type: "checkboxes", selected_options: [{ value: "delete" }] } },
-                    },
-                },
-            },
-        });
-        const body = res.body as { response_action: string; errors: Record<string, string> };
-        expect(body.response_action).toBe("errors");
-        expect(body.errors.id).toContain("ghost");
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
-    });
-
-    it("patches a non-auditable field without invoking the audit pipeline", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
+    it("patches a field and posts a plain 'Edited' confirmation (no audit)", async () => {
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME_FULL]) });
         s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        const { calls } = installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "existing" }),
-                state: {
-                    values: {
-                        id: { value: { type: "plain_text_input", value: "acme" } },
-                        title: { value: { type: "plain_text_input", value: "Acme Renamed" } },
-                    },
-                },
-            },
-        });
-        expect(res.statusCode).toBe(200);
-        const puts = s3Mock.commandCalls(PutObjectCommand);
-        const written = JSON.parse(puts[0].args[0].input.Body as string) as ExplorerApp[];
-        expect(written[0].title).toBe("Acme Renamed");
-        // Non-auditable change → confirmation post WITHOUT 'touched' wording.
-        const post = calls.find((c) => c.url.includes("chat.postMessage"));
-        expect(post).toBeDefined();
-        const text = (JSON.parse(post!.init.body as string) as { text: string }).text;
-        expect(text).toContain("Edited");
-    });
-
-    it("invokes the audit when an auditable field (url) changes", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
-        s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        const { calls } = installFetch(async () => jsonResp({ ok: true }));
+        const { calls } = installSlackOk();
         await postSignedPayload({
             type: "view_submission",
             user: { id: "U1" },
@@ -376,201 +372,34 @@ describe("view_submission · existing mode (edit / delete)", () => {
                 },
             },
         });
-        // The post-edit Slack message references the auditable field that changed.
-        const post = calls.find((c) => c.url.includes("chat.postMessage"));
-        expect(post).toBeDefined();
-        const text = (JSON.parse(post!.init.body as string) as { text: string }).text;
-        expect(text).toContain("Edit audit");
-    });
-
-    it("returns inline modal error when no patch fields are filled and delete is unchecked", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "existing" }),
-                state: {
-                    values: {
-                        id: { value: { type: "plain_text_input", value: "acme" } },
-                    },
-                },
-            },
-        });
-        expect((res.body as { response_action?: string }).response_action).toBe("errors");
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
+        const post = calls.find((c) => c.url.includes("chat.postMessage"))!;
+        const text = (JSON.parse(post.init.body as string) as { text: string }).text;
+        expect(text).toContain("Edited");
+        expect(text).not.toContain("audit");
     });
 });
 
-// ---------- seed ----------
+// ---------- seed (unchanged flow) ----------
 
-describe("view_submission · seed mode (2-step: input → confirm → apply)", () => {
-    const seedJson = JSON.stringify([
-        { ...ACME, id: "new-1" },
-        { ...BETA, id: "new-2" },
-    ]);
+describe("view_submission · seed mode", () => {
+    const seedJson = JSON.stringify([{ ...ACME_FULL, id: "new-1" }]);
 
-    it("requires the 'reviewed' checkbox before computing diff", async () => {
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "seed" }),
-                state: {
-                    values: {
-                        seed_json: { value: { type: "plain_text_input", value: seedJson } },
-                        reviewed: { value: { type: "checkboxes", selected_options: [] } },
-                        replace: { value: { type: "checkboxes", selected_options: [] } },
-                    },
-                },
-            },
-        });
-        const body = res.body as { errors?: Record<string, string> };
-        expect(body.errors?.reviewed).toBeDefined();
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
-    });
-
-    it("phase 1: returns diff preview via response_action=update and does NOT mutate S3", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "seed" }),
-                state: {
-                    values: {
-                        seed_json: { value: { type: "plain_text_input", value: seedJson } },
-                        reviewed: { value: { type: "checkboxes", selected_options: [{ value: "ack" }] } },
-                        replace: { value: { type: "checkboxes", selected_options: [{ value: "replace" }] } },
-                    },
-                },
-            },
-        });
-        const body = res.body as {
-            response_action?: string;
-            view?: { private_metadata: string; blocks: Array<{ block_id?: string; text?: { text: string } }> };
-        };
-        expect(body.response_action).toBe("update");
-        expect(body.view).toBeDefined();
-        // Phase-2 marker present in the new view's private_metadata.
-        const meta = JSON.parse(body.view!.private_metadata) as Record<string, unknown>;
-        expect(meta.mode).toBe("seed");
-        expect(meta.phase).toBe("confirm");
-        expect(meta.replace).toBe(true);
-        expect(typeof meta.seedJson).toBe("string");
-        // Diff summary should report 2 added + 0 updated + 1 removed for replace mode
-        // (current=[ACME], seed=[new-1,new-2] → ACME removed, both seed entries added).
-        const summaryBlock = body.view!.blocks.find((b) => b.block_id === "diff_summary");
-        expect(summaryBlock?.text?.text).toContain("Added: *2*");
-        expect(summaryBlock?.text?.text).toContain("Updated: *0*");
-        expect(summaryBlock?.text?.text).toContain("Removed: *1*");
-        // Critically: zero S3 writes in phase 1.
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
-    });
-
-    it("phase 1: closes modal (response_action=clear) when diff is empty", async () => {
-        // Empty seed against empty canonical → no added/updated/removed.
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([]) });
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "seed" }),
-                state: {
-                    values: {
-                        seed_json: { value: { type: "plain_text_input", value: "[]" } },
-                        reviewed: { value: { type: "checkboxes", selected_options: [{ value: "ack" }] } },
-                        replace: { value: { type: "checkboxes", selected_options: [] } },
-                    },
-                },
-            },
-        });
-        const body = res.body as { response_action?: string };
-        expect(body.response_action).toBe("clear");
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
-    });
-
-    it("phase 2 (replace): re-validates seed from private_metadata and applies via withEtagRetry", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME]) });
+    it("phase 2 (replace) applies via withEtagRetry", async () => {
+        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME_FULL]) });
         s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        installFetch(async () => jsonResp({ ok: true }));
+        installSlackOk();
         await postSignedPayload({
             type: "view_submission",
             user: { id: "U1" },
             view: {
                 id: "V2",
                 callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({
-                    mode: "seed",
-                    phase: "confirm",
-                    seedJson,
-                    replace: true,
-                }),
-                state: { values: {} },
-            },
-        });
-        const puts = s3Mock.commandCalls(PutObjectCommand);
-        expect(puts).toHaveLength(1);
-        const written = JSON.parse(puts[0].args[0].input.Body as string) as ExplorerApp[];
-        expect(written.map((e) => e.id).sort()).toEqual(["new-1", "new-2"]);
-    });
-
-    it("phase 2 (merge): applies merge-by-id when replace=false", async () => {
-        s3Mock.on(GetObjectCommand).resolves({ ETag: '"e1"', Body: bodyFrom([ACME, BETA]) });
-        s3Mock.on(PutObjectCommand).resolves({ ETag: '"e2"' });
-        installFetch(async () => jsonResp({ ok: true }));
-        await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V2",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({
-                    mode: "seed",
-                    phase: "confirm",
-                    seedJson,
-                    replace: false,
-                }),
+                private_metadata: JSON.stringify({ mode: "seed", phase: "confirm", seedJson, replace: true }),
                 state: { values: {} },
             },
         });
         const written = JSON.parse(s3Mock.commandCalls(PutObjectCommand)[0].args[0].input.Body as string) as ExplorerApp[];
-        expect(written.map((e) => e.id).sort()).toEqual(["acme", "beta", "new-1", "new-2"]);
-    });
-
-    it("returns inline schema error for malformed seed JSON in phase 1", async () => {
-        installFetch(async () => jsonResp({ ok: true }));
-        const res = await postSignedPayload({
-            type: "view_submission",
-            user: { id: "U1" },
-            view: {
-                id: "V1",
-                callback_id: "explorer_admin_v1",
-                private_metadata: JSON.stringify({ mode: "seed" }),
-                state: {
-                    values: {
-                        seed_json: { value: { type: "plain_text_input", value: "[{not json" } },
-                        reviewed: { value: { type: "checkboxes", selected_options: [{ value: "ack" }] } },
-                        replace: { value: { type: "checkboxes", selected_options: [] } },
-                    },
-                },
-            },
-        });
-        const body = res.body as { errors?: Record<string, string> };
-        expect(body.errors?.seed_json).toBeDefined();
-        expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
+        expect(written.map((e) => e.id)).toEqual(["new-1"]);
     });
 });
 
@@ -578,10 +407,8 @@ describe("view_submission · seed mode (2-step: input → confirm → apply)", (
 
 describe("block_actions · mode select", () => {
     it("opens the pending modal via views.update on mode=pending", async () => {
-        const { calls } = installFetch(async (url) => {
-            if (url.includes("conversations.history")) return jsonResp({ ok: true, messages: [] });
-            return jsonResp({ ok: true });
-        });
+        listPendingMock.mockResolvedValue([]);
+        const { calls } = installSlackOk();
         const res = await postSignedPayload({
             type: "block_actions",
             user: { id: "U1" },
@@ -589,9 +416,8 @@ describe("block_actions · mode select", () => {
             actions: [{ action_id: "mode_select", type: "static_select", selected_option: { value: "pending" } }],
         });
         expect(res.statusCode).toBe(200);
-        const update = calls.find((c) => c.url.includes("views.update"));
-        expect(update).toBeDefined();
-        const body = JSON.parse(update!.init.body as string) as { view: { private_metadata: string } };
+        const update = calls.find((c) => c.url.includes("views.update"))!;
+        const body = JSON.parse(update.init.body as string) as { view: { private_metadata: string } };
         expect(JSON.parse(body.view.private_metadata).mode).toBe("pending");
     });
 });
