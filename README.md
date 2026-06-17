@@ -3,8 +3,8 @@
 A responsive, dark-themed dashboard that pins the XRPL EVM ecosystem
 (Wallets, Bridges, dApps, Oracles, Indexers, DAOs, Explorers, Validators,
 Core, Auditors, Providers) onto a single page of interactive cards. New
-projects are submitted via a custom form, audited automatically, and
-approved in batch from Slack.
+projects are submitted via a custom form, staged in Airtable, and
+approved per-surface in batch from Slack.
 
 ---
 
@@ -21,16 +21,20 @@ Two things live in this repo:
 2. **Submission and approval pipeline** (`api/`) — three Vercel
    serverless endpoints:
    - `POST /api/submit` accepts `multipart/form-data` from the embedded
-     submission form, validates with Zod, uploads the logo to Slack,
-     posts a "pending" message to the approval channel with structured
-     `metadata`, and runs an Anthropic Claude Haiku audit in a thread
-     reply.
+     submission form, validates with Zod, and stages the submission in
+     **Airtable** as a `Status = Pending` row (the raw logo is attached
+     to the row). **Nothing is written to S3 until approval.** It posts a
+     lightweight Slack notice linking the Airtable record.
    - `POST /api/slack/commands` handles the `/explorer-admin` slash
      command, opening a multi-mode modal (Pending / Existing / Seed).
-   - `POST /api/slack/actions` handles every interactive payload that
-     comes back from that modal — reading from S3, applying mutations
-     (approve, edit, delete, seed apply) atomically with conditional
-     PUT, and rolling back logos on failure.
+   - `POST /api/slack/actions` handles every interactive payload from
+     that modal. In Pending mode the reviewer checks each row under the
+     surface to publish it to — **Explorer dApps**, **Ecosystem map**, or
+     **Both** — or **Reject**. On approve the logo is normalised to a
+     250×250 PNG, uploaded to S3, and the entry is appended to
+     `explorer-apps.json` (atomic conditional PUT) with the chosen
+     `surfaces`; the row is set to `Approved`. Existing/Seed modes mutate
+     the registry directly.
 
 Both halves share a typed registry shape (`src/lib/explorer-apps-types.ts`),
 a Zod validator (`src/lib/schemas/explorer-app.ts`), and an env loader
@@ -38,22 +42,22 @@ a Zod validator (`src/lib/schemas/explorer-app.ts`), and an env loader
 
 ---
 
-## Architecture (post Phase 7)
+## Architecture
 
 ```
                          ┌─────────────────────────────┐
    submitter (browser)   │   POST /api/submit          │
    ──────────────────▶   │   • Zod validate            │
-                         │   • upload logo → Slack     │
-                         │   • postMessage(channel) +  │
-                         │     metadata { submission } │
-                         │   • thread: Claude audit    │
+                         │   • create Airtable row      │
+                         │     (Status = Pending)       │
+                         │   • attach raw logo          │
+                         │   • Slack notice (link)      │   ← NO S3 write
                          └────────────┬────────────────┘
                                       │
                                       ▼
                        ┌────────────────────────────────┐
-                       │  Slack channel = pending queue │
-                       │  (metadata-tagged messages)    │
+                       │  Airtable = pending queue       │
+                       │  (Status = Pending rows)        │
                        └────────────┬───────────────────┘
                                     │ /explorer-admin
                                     ▼
@@ -62,15 +66,18 @@ a Zod validator (`src/lib/schemas/explorer-app.ts`), and an env loader
                          │  modal submit
                          ▼
                    POST /api/slack/actions
-                   ├─ pending    → withEtagRetry: read JSON → append → PUT (If-Match) → upload logos to S3
-                   ├─ existing   → withEtagRetry: read JSON → edit/delete → PUT (If-Match)
-                   └─ seed apply → withEtagRetry: read seed.json → overwrite explorer-apps.json
+                   ├─ pending  → per row: choose surface (dApps | map | both) or reject
+                   │            approve → download logo → normalise 250×250 →
+                   │            putLogo(S3) → withEtagRetry append explorer-apps.json →
+                   │            Airtable Status=Approved ; reject → Status=Rejected
+                   ├─ existing → withEtagRetry: read JSON → edit/delete → PUT (If-Match)
+                   └─ seed     → withEtagRetry: read seed.json → overwrite explorer-apps.json
                          │
                          ▼
               ┌──────────────────────────────┐
               │  s3://peersyst-development/  │
               │    explorer-apps.json        │  ←── single source of truth
-              │    explorer-dapp-<id>.<ext>  │
+              │    explorer-dapp-<id>.png    │
               └──────────┬───────────────────┘
                          │ HTTPS GET (?ts=… cache-buster, no-store)
                          ▼
@@ -83,22 +90,24 @@ Key invariants:
 - **One source of truth**: `s3://$S3_BUCKET/$S3_JSON_KEY`. No
   PR-to-self, no committed registry checked into the repo, no redeploy
   per entry.
-- **Atomic writes**: every mutation goes through `withEtagRetry` in
-  `src/lib/s3-client.ts`. Concurrent approvals can't overwrite each
-  other; on `412 Precondition Failed` the helper re-reads, re-applies
-  the same diff, and retries (default 3 attempts). **Bucket versioning
-  must be ON** for this to be safe.
-- **Slack as pending queue**: pending submissions live as
-  `chat.postMessage` calls carrying
-  `metadata.event_type === "explorer_submission_pending"` and a full
-  `event_payload`. Reading the queue means listing channel history and
-  filtering on metadata + reaction state — no database.
-- **Two surfaces, one row**: each row carries
+- **Nothing in S3 until approval**: submissions live in Airtable (logo
+  as an attachment); the S3 write happens only when a reviewer approves.
+- **Atomic writes**: every registry mutation goes through `withEtagRetry`
+  in `src/lib/s3-client.ts`. Concurrent approvals can't overwrite each
+  other; on `412 Precondition Failed` the helper re-reads, re-applies the
+  same diff, and retries (default 3 attempts). **Bucket versioning must
+  be ON** for this to be safe.
+- **Airtable as pending queue**: the modal lists rows where
+  `Status = Pending` (live `filterByFormula` query) — no Slack-history
+  scan, no metadata tagging. Status transitions (`Approved` / `Rejected`)
+  are written back to the row.
+- **Two surfaces, one row, chosen at approval**: each row carries
   `surfaces?: ("explorer-apps" | "ecosystem-map")[]` (default
-  `["explorer-apps"]`) and `ecosystemSection?: SectionId` (required
-  when `surfaces` includes `"ecosystem-map"`). The frontend filters on
-  `surfaces` so the registry can stay lean for the dApp explorer
-  consumer.
+  `["explorer-apps"]`) and `ecosystemSection?: SectionId` (required when
+  `surfaces` includes `"ecosystem-map"`). The submission does not bake in
+  `surfaces` — the reviewer picks the target surface(s) at approval, and
+  `ecosystemSection` is dropped for dApps-only targets. The frontend
+  filters on `surfaces` so the registry stays lean for the dApp explorer.
 
 ---
 
@@ -126,10 +135,11 @@ ecosystem-map-xrplevm/
       errors.ts                     # typed errors with stable codes
       multipart.ts                  # busboy streaming parser with byte cap
       slug.ts                       # kebab-case slugify
-      slack.ts                      # HMAC verify, postMessage, file upload
-      slack-batch.ts                # /explorer-admin modal builder + handlers
-      audit.ts                      # Anthropic Claude Haiku caller
-      s3-client.ts                  # getJson / putJsonIfMatch / withEtagRetry / putLogo / deleteLogo
+      slack.ts                      # HMAC verify, postMessage
+      slack-batch.ts                # /explorer-admin modal builder + handlers + approval artifacts
+      airtable.ts                   # Airtable client: create / upload icon / list pending / set status
+      logo-image.ts                 # normalizeLogo → 250×250 PNG, 30px rounded (sharp)
+      s3-client.ts                  # getJson / putJsonIfMatch / withEtagRetry / putLogo
       explorer-apps-types.ts        # canonical row shape
       explorer-apps-source.ts       # browser loader: fetch S3 → fallback to snapshot
       schemas/
@@ -187,13 +197,15 @@ message).
 | --- | --- | --- |
 | `SLACK_BOT_TOKEN` | Slack | Bot token (`xoxb-…`). Scopes below. |
 | `SLACK_SIGNING_SECRET` | Slack | Signing secret used for HMAC verify on every Slack-bound request. ≥32 chars. |
-| `SLACK_APPROVAL_CHANNEL` | Slack | Channel ID (not name) where `/api/submit` posts pending messages and where `/explorer-admin` looks for the queue. Get it via right-click channel → "Copy link" — trailing path segment, starts with `C`. |
+| `SLACK_APPROVAL_CHANNEL` | Slack | Channel ID (not name) where `/api/submit` posts the submission notice and where the batch summary + approval artifacts land. Get it via right-click channel → "Copy link" — trailing path segment, starts with `C`. |
+| `AIRTABLE_API_KEY` | Airtable | Personal Access Token. Runtime needs `data.records:read` + `data.records:write`. The one-time field provisioner (`npm run airtable:setup`) additionally needs `schema.bases:read` + `schema.bases:write` **and Creator access to the base**. |
+| `AIRTABLE_BASE_ID` | Airtable | Base holding the submission queue. Default `appDFL9N9MDWj0Ywd`. |
+| `AIRTABLE_TABLE_ID` | Airtable | Table holding the submission queue. Default `tblSXGty3mcKj7F62`. |
 | `AWS_REGION` | AWS / S3 | Region of the bucket. Default `eu-west-1`. |
 | `S3_BUCKET` | AWS / S3 | Bucket holding `explorer-apps.json` and dApp logos. Default `peersyst-development`. |
 | `S3_JSON_KEY` | AWS / S3 | Object key of the canonical registry. Default `explorer-apps.json`. |
 | `AWS_ACCESS_KEY_ID` | AWS / S3 | IAM access key. Required for the Slack approval handler (write paths). Read-only deploys can omit it. |
 | `AWS_SECRET_ACCESS_KEY` | AWS / S3 | Matching IAM secret. Required only when `AWS_ACCESS_KEY_ID` is set. |
-| `ANTHROPIC_API_KEY` | Anthropic | API key for the Claude Haiku audit run from `/api/submit`. Optional — when absent the audit returns a `warn` verdict so the human approver decides. |
 | `REACT_APP_EXPLORER_APPS_URL` | Frontend (CRA) | Public URL of `explorer-apps.json` the browser should fetch. Inlined into the bundle at build time. Defaults to `https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-apps.json`. |
 | `SUBMISSION_LOGO_MAX_BYTES` | Logo limits | Max logo size accepted by `/api/submit`, in bytes. Default `500000` (~500KB). |
 
@@ -210,14 +222,14 @@ change requires a redeploy.
 1. Create an app at <https://api.slack.com/apps> from scratch.
 2. **OAuth & Permissions → Bot Token Scopes** (minimum):
    - `commands` — register `/explorer-admin`.
-   - `chat:write` — post pending / approval messages.
+   - `chat:write` — post the submission notice and batch summary.
    - `chat:write.public` — post in channels the bot is not a member of (only needed if approvals land in such a channel; otherwise optional).
-   - `views:open`, `views:update`, `views:publish` — open and update the `/explorer-admin` modal.
-   - `reactions:write` — mark approved/rejected pending messages with ✅ / ❌.
-   - `metadata.message:read` — read the `event_payload` attached to pending messages so the modal can list them.
-   - `channels:history` (and/or `groups:history` for private channels) — list pending messages from the approval channel.
-   - `files:write` — upload submitted logos to Slack as attachments.
-   - `files:read` — fetch logo bytes back when approving (so they can be re-uploaded to S3).
+   - `views:open`, `views:update` — open and update the `/explorer-admin` modal.
+   - `files:write` — upload the updated `explorer-apps.json` and added logos to the channel after an approval batch.
+
+   > The pending queue lives in **Airtable**, not Slack — so the older
+   > `metadata.message:read`, `channels:history`, and `reactions:write`
+   > scopes are no longer needed.
 3. Install the app to the workspace; copy the resulting **Bot User
    OAuth Token** (`xoxb-…`) into `SLACK_BOT_TOKEN`.
 4. The **Signing Secret** lives under **Basic Information → App
@@ -298,23 +310,43 @@ once per environment:
 
 ---
 
-## Anthropic (Claude Haiku audit)
+## Airtable setup (submission queue)
 
-`/api/submit` runs an integrity audit on every new submission and on
-edits that touch `url`, `site`, or `github`. The caller lives in
-`src/lib/audit.ts` and uses
-`@anthropic-ai/sdk` with model `claude-3-5-haiku-latest` and an 8s
-`AbortController` timeout. The response is parsed with a Zod schema
-into `{ verdict, reasons, confidence, raw? }` and rendered in the
-Slack thread of the pending message.
+Submissions are staged in an Airtable base (`AIRTABLE_BASE_ID` /
+`AIRTABLE_TABLE_ID`). The **table already exists** — what the pipeline
+needs is a fixed set of fields on it.
 
-When `ANTHROPIC_API_KEY` is unset, the network call times out, or the
-response fails to parse, the audit falls back to a `warn` verdict
-(confidence `0`) and posts a "_audit unavailable — proceed with manual
-review_" line in the thread. The intake never fails because of the
-audit (R5 below): the human approver is the source of truth. There
-is no client-side rate limiter — if the channel starts seeing audit
-spam, mitigate at the Anthropic dashboard.
+**Reused (already on the table):** `Name`, `Website`, `Description`
+(short tagline), `Contact email`, and the attachment field for the logo
+(stored by id `fldind6amgF8zBmR6`; in the Airtable UI it is the
+template-leftover field literally named **"Assignee"**).
+
+**Provisioned by the setup script** (10 fields): `Section`,
+`Long description`, `Categories`, `Author`, `Site`, `GitHub`,
+`Submitter name`, `Status` (`Pending`/`Approved`/`Rejected`),
+`Registry id`, `Logo URL`.
+
+### Bootstrap the fields (one-time)
+
+```bash
+# Requires AIRTABLE_API_KEY with schema.bases:read + schema.bases:write
+# AND Creator access to the base (Editor returns 403 on field creation).
+AIRTABLE_API_KEY=… AIRTABLE_BASE_ID=… AIRTABLE_TABLE_ID=… npm run airtable:setup
+```
+
+`scripts/airtable-setup.ts` is **idempotent** — it lists current fields
+and `POST`s only the missing ones (a duplicate-name error is treated as
+"already there"), so it is safe to re-run. Field choice lists (sections,
+categories) are imported from the app schemas so Airtable stays in sync
+with the code. Alternatively, create the 10 fields by hand in the
+Airtable UI with the names/types above.
+
+> **Why not run this on every deploy?** It mutates external schema, so a
+> transient Airtable/API error would fail the deploy; the build would
+> need a PAT with broad `schema.bases:write` scope (the runtime only
+> needs `data.records:*`); and field creation is a one-time bootstrap,
+> not a per-deploy concern. Keep it a manual step (or a CI job gated to
+> run once), not part of the build command.
 
 ---
 
@@ -328,42 +360,42 @@ A single-flow walkthrough for maintainers:
    `logo` file (≤500KB, `image/png|jpeg|svg+xml|webp`), plus optional
    explorer-apps extras (`description`, `longDescription`,
    `categories[]`, `author`, `site`, `github`, `submitterName`).
-2. **`/api/submit`** Zod-validates, slugifies the name (rejects on
-   duplicate id), uploads the logo to Slack, and posts a pending
-   message to `SLACK_APPROVAL_CHANNEL`. The message carries
-   `metadata.event_type === "explorer_submission_pending"` and the
-   full submission as `event_payload`. A thread reply renders the
-   Claude audit verdict (or the fallback line).
+2. **`/api/submit`** Zod-validates, slugifies the name, and runs a
+   logo-less `explorerAppSchema` pre-flight (so a row that could never
+   become a valid entry is rejected now, not at approval). It then
+   creates an Airtable row with `Status = Pending` and attaches the raw
+   logo; if the attachment upload fails the row is rolled back. A
+   lightweight Slack notice linking the record is posted. **No S3 write,
+   no audit.**
 3. **Maintainer** runs `/explorer-admin` in any Slack channel.
    `/api/slack/commands` verifies the HMAC, opens a modal with a
    mode-selector at the top:
-   - **Pending submissions** — `conversations.history` filtered by
-     metadata and absence of ✅ / ❌ reactions; up to 50 items per
-     view. Each row offers Approve / Reject / Skip.
-   - **Existing entries** — read from S3 via `getJson`; each row
-     offers Keep / Edit / Delete. Edit pushes a sub-modal pre-filled
-     with the entry. Delete requires "I understand this is permanent".
-   - **Seed migration** — only visible when `s3://$S3_BUCKET/pending-seed.json`
-     exists. One-shot "Apply seed" overwrites the canonical registry.
-4. **Maintainer submits the modal**. `/api/slack/actions` dispatches
-   on the mode in `private_metadata`:
-   - **Pending mode**: per-item — Reject reacts ❌ on the parent
-     message and is done; Approve `withEtagRetry`s a read-modify-write
-     of the JSON, uploads the logo to S3 under `explorer-dapp-<id>.<ext>`,
-     and reacts ✅ on success. A duplicate id inside the batch
-     fails the whole batch fast (atomicity > convenience); orphaned
-     S3 logos are best-effort cleaned up.
-   - **Existing mode**: per-item — Edit revalidates the row, runs
-     `auditEdit` if `url`/`site`/`github` changed, and stages it;
-     Delete stages the deletion plus the logo-cleanup. The whole
-     batch is a single read-modify-write; logos are deleted post-PUT.
-   - **Seed apply**: read `pending-seed.json`, validate against the
-     schema, `putJsonIfMatch` over `explorer-apps.json`, best-effort
-     `deleteObject(pending-seed.json)`.
+   - **Pending submissions** — a live Airtable `Status = Pending` query.
+     Each row appears under four checkbox groups: **Approve → Explorer
+     dApps**, **Approve → Ecosystem map**, **Approve → Both**, and
+     **Reject**. A row checked in more than one group is refused.
+   - **Existing entries** — edit/delete a registry entry by `id`
+     (read from S3 via `getJson`).
+   - **Seed migration** — paste an `ExplorerApp[]` seed; a diff preview
+     gates a replace/merge apply.
+4. **Maintainer submits the modal**. `/api/slack/actions` dispatches on
+   the mode in `private_metadata`:
+   - **Pending mode**: re-reads the live Airtable rows. For each approved
+     row — download the logo attachment → normalise to a 250×250 PNG
+     with 30px rounded corners → `putLogo` to S3 as
+     `explorer-dapp-<id>.png` → `withEtagRetry` append to
+     `explorer-apps.json` with the chosen `surfaces` (dropping
+     `ecosystemSection` for dApps-only) → set Airtable `Status = Approved`
+     (storing the registry id + S3 logo URL). Rejected rows get
+     `Status = Rejected` (no S3). After the batch, the updated
+     `explorer-apps.json` and each added logo are posted to the channel,
+     threaded under a summary that breaks the approved count down by
+     surface.
+   - **Existing mode**: edit revalidates the row; delete removes it. One
+     read-modify-write via `withEtagRetry`.
+   - **Seed apply**: validate the seed, `withEtagRetry` replace/merge
+     into `explorer-apps.json`.
 5. The frontend serves the new shape on next fetch (no redeploy).
-
-`/api/slack/actions` returns `200` to Slack within 3 seconds; the
-heavy work runs in `waitUntil`-style background after the ack.
 
 ---
 
@@ -455,7 +487,7 @@ to `main` does not change the live data.
    - **Interactivity & Shortcuts → Request URL** to
      `https://<deploy>.vercel.app/api/slack/actions`.
 5. **Secret rotation**. `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`,
-   `AWS_*`, and `ANTHROPIC_API_KEY` are all swappable in place via the
+   `AWS_*`, and `AIRTABLE_API_KEY` are all swappable in place via the
    Vercel UI; redeploy to pick the new values up at function cold
    start. The bucket itself does not need to be touched. After
    rotating Slack credentials, refresh the Bot Token in the Slack app
@@ -480,12 +512,14 @@ to `main` does not change the live data.
   compress the asset or raise `SUBMISSION_LOGO_MAX_BYTES`.
 - **`/api/submit` returns 415.** Logo MIME isn't on the allowlist
   (`image/png`, `image/jpeg`, `image/svg+xml`, `image/webp`).
-- **`/api/submit` returns 409.** Slug derived from `name` collides
-  with an existing entry. The response body includes a `suggestion`
-  slug.
-- **Audit always reads "audit unavailable".** Either
-  `ANTHROPIC_API_KEY` is missing/invalid, the call timed out (8s), or
-  the response failed schema parsing. Fall back to manual review.
+- **`/api/submit` returns 502 (`UPSTREAM_AIRTABLE`).** Airtable rejected
+  the create/attachment — most often the pipeline fields aren't
+  provisioned yet (run `npm run airtable:setup`) or the PAT lacks
+  `data.records:write`.
+- **`/explorer-admin` Pending list is empty / a row won't list.** The
+  modal only shows Airtable rows with `Status = Pending` and the required
+  fields filled (Name, Website, Description, Section); incomplete drafts
+  are skipped.
 - **Frontend renders the snapshot banner.** The live S3 fetch failed —
   check CORS (R2), bucket public-read on the JSON object, and that
   `REACT_APP_EXPLORER_APPS_URL` matches the actual key.
@@ -499,8 +533,8 @@ to `main` does not change the live data.
 | L7 | XRPL EVM Explorer dApp registry consumer point. Confirm it reads `https://peersyst-development.s3.eu-west-1.amazonaws.com/explorer-apps.json` (the same S3 object this repo writes). If it points elsewhere, a parallel migration is required in that repo — out of scope for Phase 7. | **Open**, leader to confirm with the Explorer team. |
 | R1 | S3 bucket versioning **must** be ON for the conditional-PUT contract to be safe. Off → silent last-write-wins on concurrent approvals. | Documented in [AWS S3 setup](#aws-s3-setup). Verify in the AWS console before going live. |
 | R2 | CORS on the bucket must allow `GET`/`HEAD` from the deploy origin and expose `ETag`. A misconfig surfaces as the snapshot fallback banner on the frontend. | Documented in [AWS S3 setup](#aws-s3-setup). |
-| R3 | The `/explorer-admin` Pending mode is capped at the first 50 messages — Slack modal block-limit. The "Show next" pagination is a follow-up; until then, drain the queue regularly. | Tracked as Phase 8 nice-to-have. |
-| R5 | No client-side rate limiter on the Anthropic caller. A flood of submissions translates to a flood of audit calls (and cost). v1 mitigation: Zod validation gates obvious junk before the audit fires. | Monitor on the Anthropic dashboard; add a token-bucket if needed. |
+| R3 | The `/explorer-admin` Pending mode lists the first 50 Airtable `Status = Pending` rows — Slack modal block-limit. Pagination is a follow-up; until then, drain the queue regularly. | Tracked as a nice-to-have. |
+| R5 | The Airtable pipeline fields must be provisioned before submissions can be staged (`npm run airtable:setup`, Creator-level PAT). Until then `/api/submit` returns 502. | Documented in [Airtable setup](#airtable-setup-submission-queue). One-time bootstrap. |
 
 ---
 

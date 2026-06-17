@@ -2,7 +2,23 @@
 
 - **Date:** 2026-06-16
 - **Branch:** `feat/submission-platform`
-- **Status:** Approved design, pending spec review → implementation plan
+- **Status:** Implemented 2026-06-17 (`src/lib/airtable.ts`, `api/submit.ts`,
+  `src/lib/slack-batch.ts`, `api/slack/actions.ts`; Claude audit removed).
+  Two deltas from the design, both verified against the live base: the
+  attachment field is the existing one (id `fldind6amgF8zBmR6`, UI name
+  "Assignee") rather than a new "Icon" field, and `/api/submit` keeps a
+  logo-less `explorerAppSchema` pre-flight so invalid rows are rejected at
+  submit instead of becoming unapprovable. **Remaining prerequisite:** the 10
+  pipeline fields still need to be provisioned (`npm run airtable:setup` with a
+  Creator-level PAT) — field creation currently 403s on Editor permission.
+- **Extension 2026-06-17 (per-surface approval):** the Pending modal now offers
+  three approve groups — *Explorer dApps*, *Ecosystem map*, *Both* — plus
+  *Reject*; the approved entry's `surfaces` is set from the group it was checked
+  in, and `ecosystemSection` is dropped for dApps-only targets. The submission
+  candidate no longer bakes in `surfaces` (the reviewer chooses at approval);
+  `/api/submit` pre-flights against both surfaces so any target stays valid. A
+  row checked in more than one group is refused. The batch summary breaks the
+  approved count down by target.
 
 ## Goal & guiding principle
 

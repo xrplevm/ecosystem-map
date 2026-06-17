@@ -7,8 +7,8 @@ Short quickstart for the XRPL EVM Ecosystem Map. For the full runbook see
 
 - **Node ≥ 18.18.0** and **npm**.
 - Only for the submission/approval pipeline (not needed to view the map):
-  the **Vercel CLI** (`npm i -g vercel`), a **Slack app**, and an **S3 bucket**
-  (versioning ON). An **Anthropic API key** is optional.
+  the **Vercel CLI** (`npm i -g vercel`), a **Slack app**, an **Airtable base**
+  (the submission queue), and an **S3 bucket** (versioning ON).
 
 ## 1. Run the map locally (read-only)
 
@@ -64,22 +64,41 @@ The submit form + Slack approval flow run as Vercel functions in `api/`, which
 `npm start` does **not** serve. To exercise them:
 
 ```bash
-cp .env.example .env.local   # fill in Slack + AWS (+ optional Anthropic)
+cp .env.example .env.local   # fill in Slack + Airtable + AWS
 vercel dev                   # serves the site and /api/*
 ```
 
 Required env vars are documented in `.env.example` and validated fail-fast by
-`src/lib/env.ts`. The canonical S3 registry is updated via
-`npm run generate-seed` → review → Slack `/explorer-admin → Apply seed`
-(see the "Seed migration" section of `README.md`). The repo tooling is
-read-only against S3.
+`src/lib/env.ts`.
 
-**Submitted logos** are normalised before storage: `api/submit.ts` runs every
-upload through `normalizeLogo` (`src/lib/logo-image.ts`, using `sharp`) to a
-**250×250 PNG with 30px rounded corners**, then saves it to S3 as
-`explorer-dapp-<id>.png` (same bucket as the registry). This keeps the
-ecosystem-map grid visually uniform regardless of the uploaded size/format
-(PNG/JPEG/SVG/WebP).
+**Flow — submissions are staged in Airtable; nothing touches S3 until approval:**
+
+1. `POST /api/submit` validates the form, creates a `Status = Pending` row in
+   Airtable, attaches the **raw** logo to that row, and posts a lightweight
+   Slack notice. **No S3 write.**
+2. A reviewer runs Slack `/explorer-admin → Pending submissions`. Each row is
+   checked under the surface to publish it to — **Explorer dApps**, **Ecosystem
+   map**, or **Both** — or under **Reject**. A row checked in more than one
+   group is refused.
+3. On **Approve** (per row): the logo is downloaded from Airtable, normalised by
+   `normalizeLogo` (`src/lib/logo-image.ts`, `sharp`) to a **250×250 PNG with
+   30px rounded corners**, uploaded to S3 as `explorer-dapp-<id>.png`, and the
+   entry is appended to `explorer-apps.json` with the chosen `surfaces`
+   (`ecosystemSection` is kept for map targets, dropped for dApps-only). The row
+   is set to `Approved`. On **Reject**: the row is set to `Rejected` (no S3).
+   After a batch, the updated `explorer-apps.json` and each added logo are
+   posted to Slack.
+
+> **One-time Airtable prerequisite:** the table needs the pipeline fields
+> (Section, Long description, Categories, Author, Site, GitHub, Submitter name,
+> Status, Registry id, Logo URL). Run `npm run airtable:setup` once with a PAT
+> that has **Creator** access to the base (`schema.bases:read` + `:write`).
+> The logo attaches to the table's existing attachment field
+> (id `fldind6amgF8zBmR6`, shown as "Assignee" in the Airtable UI).
+
+The canonical S3 registry can also be bulk-updated via `npm run generate-seed`
+→ review → Slack `/explorer-admin → Apply seed` (see the "Seed migration"
+section of `README.md`).
 
 ## 5. Verify
 
