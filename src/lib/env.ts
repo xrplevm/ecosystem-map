@@ -66,6 +66,23 @@ export function loadEnv(): SubmissionEnv {
 }
 
 /**
+ * True when the submission backend is fully configured — i.e. `loadEnv()`
+ * succeeds. The only required-without-default fields are the three Slack vars,
+ * so in practice this answers "is Slack configured?". Exposed to the static
+ * frontend via `GET /api/config` so it can decide whether to open the in-app
+ * submission form or link straight to the Airtable fallback (the CRA bundle
+ * can't read these server-only vars itself).
+ */
+export function isSubmissionsConfigured(): boolean {
+    try {
+        loadEnv();
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Test-only: reset the cache so tests with mutated `process.env` see fresh values.
  * NOT intended for use by handler code.
  */
