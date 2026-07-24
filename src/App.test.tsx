@@ -96,8 +96,9 @@ test("falls back to the bundled snapshot when the remote fetch fails", async () 
 
     render(<App />);
 
+    // The snapshot loads and renders transparently — no status/notice banner.
     await waitFor(() => {
-        expect(screen.getByRole("status")).toHaveTextContent(/bundled snapshot/i);
+        expect(screen.getByAltText("Demo dApp")).toBeInTheDocument();
     });
-    expect(screen.getByAltText("Demo dApp")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
 });
