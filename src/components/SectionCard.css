@@ -76,3 +76,13 @@
     min-width: 0;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .section-card,
+  .logo-image {
+    transition: none;
+  }
+  .logo-wrapper:hover .logo-image {
+    transform: none;
+  }
+}
