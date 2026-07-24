@@ -83,8 +83,6 @@ function App() {
 
     const retry = useCallback(() => setReloadToken((token) => token + 1), []);
 
-    const showSnapshotNotice = status.kind === "ready" && status.result.source === "snapshot";
-
     return (
         <div className="App">
             <BrandLines />
@@ -104,11 +102,6 @@ function App() {
                     <button type="button" onClick={retry}>
                         Retry
                     </button>
-                </div>
-            )}
-            {showSnapshotNotice && (
-                <div className="app-load-banner app-load-banner-warn" role="status">
-                    Showing the bundled snapshot — live registry was unreachable.
                 </div>
             )}
 

@@ -374,9 +374,10 @@ body, #root {
   }
 }
 
-/* Async-load status banners (phase-7f). Rendered below the cards grid
-   when fetching the explorer-apps registry from S3 fails or falls back
-   to the bundled snapshot. Kept minimal and non-blocking on purpose. */
+/* Async-load error banner. Rendered below the cards grid when loading the
+   explorer-apps registry fails outright. Kept minimal and non-blocking on
+   purpose. (The snapshot-fallback notice was removed — the bundled snapshot
+   is a legitimate source, not a degraded state worth flagging.) */
 .app-load-banner {
   position: fixed;
   bottom: 96px;
@@ -395,11 +396,6 @@ body, #root {
   background: #fff1f1;
   color: #842029;
   border: 1px solid #f5c2c7;
-}
-.app-load-banner-warn {
-  background: #fff8e1;
-  color: #6b4f00;
-  border: 1px solid #ffe082;
 }
 .app-load-banner button {
   background: transparent;
