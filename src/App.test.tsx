@@ -12,11 +12,30 @@ function jsonResponse(body: unknown, ok = true): Response {
     } as unknown as Response;
 }
 
+function requestUrl(input: RequestInfo | URL): string {
+    if (typeof input === "string") return input;
+    if (input instanceof URL) return input.href;
+    return (input as Request).url ?? String(input);
+}
+
+/**
+ * `SubmitProjectButton` probes `GET /api/config` on mount to learn whether the
+ * in-app submission flow is usable. These App-level tests exercise the
+ * fully-configured (enabled) path — the disabled/Airtable path is covered in
+ * `components/__tests__/SubmitProjectButton.test.tsx` — so the config mock
+ * always reports `submissionsEnabled: true`. Registry fetches fall through to
+ * the caller-supplied behaviour.
+ */
 beforeEach(() => {
     Object.defineProperty(globalThis, "fetch", {
         configurable: true,
         writable: true,
-        value: jest.fn().mockResolvedValue(jsonResponse([])),
+        value: jest.fn((input: RequestInfo | URL) => {
+            if (requestUrl(input).includes("/api/config")) {
+                return Promise.resolve(jsonResponse({ ok: true, submissionsEnabled: true }));
+            }
+            return Promise.resolve(jsonResponse([]));
+        }),
     });
 });
 
@@ -45,25 +64,34 @@ test("keeps the Airtable submission link as a fallback in the footer", async () 
 });
 
 test("falls back to the bundled snapshot when the remote fetch fails", async () => {
-    const fetchMock = jest
-        .fn()
-        .mockResolvedValueOnce(jsonResponse({}, false))
-        .mockResolvedValueOnce(
-            jsonResponse([
-                {
-                    id: "demo",
-                    external: true,
-                    title: "Demo dApp",
-                    logo: "https://example.com/demo.png",
-                    shortDescription: "demo",
-                    categories: ["dApp"],
-                    author: "demo",
-                    url: "https://example.com",
-                    surfaces: ["explorer-apps", "ecosystem-map"],
-                    ecosystemSection: "dapps",
-                },
-            ]),
-        );
+    // Routed by URL rather than call order: the /api/config probe and the
+    // registry loads fire together on mount, so a positional mock would be
+    // racy. Any remote registry fetch fails; the bundled snapshot succeeds.
+    const snapshot = jsonResponse([
+        {
+            id: "demo",
+            external: true,
+            title: "Demo dApp",
+            logo: "https://example.com/demo.png",
+            shortDescription: "demo",
+            categories: ["dApp"],
+            author: "demo",
+            url: "https://example.com",
+            surfaces: ["explorer-apps", "ecosystem-map"],
+            ecosystemSection: "dapps",
+        },
+    ]);
+    const fetchMock = jest.fn((input: RequestInfo | URL) => {
+        const url = requestUrl(input);
+        if (url.includes("/api/config")) {
+            return Promise.resolve(jsonResponse({ ok: true, submissionsEnabled: true }));
+        }
+        if (url.includes("explorer-apps.snapshot.json")) {
+            return Promise.resolve(snapshot);
+        }
+        // Any configured remote registry URL fails, forcing the snapshot path.
+        return Promise.resolve(jsonResponse({}, false));
+    });
     Object.defineProperty(globalThis, "fetch", { configurable: true, writable: true, value: fetchMock });
 
     render(<App />);
